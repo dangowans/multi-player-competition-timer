@@ -417,12 +417,23 @@
                 return;
             }
 
-            container.innerHTML = participants.map(name => `
-                <div class="participant-badge">
-                    ${name}
-                    <span class="remove-btn" onclick="removeParticipant('${name}')">×</span>
-                </div>
-            `).join('');
+            // Clear container and use DOM methods to prevent XSS
+            container.innerHTML = '';
+            participants.forEach(name => {
+                const badge = document.createElement('div');
+                badge.className = 'participant-badge';
+                
+                const nameText = document.createTextNode(name);
+                badge.appendChild(nameText);
+                
+                const removeBtn = document.createElement('span');
+                removeBtn.className = 'remove-btn';
+                removeBtn.textContent = '×';
+                removeBtn.onclick = () => removeParticipant(name);
+                badge.appendChild(removeBtn);
+                
+                container.appendChild(badge);
+            });
         }
 
         // Timer Functions
@@ -488,8 +499,8 @@
             document.getElementById('stopBtn').disabled = true;
         }
 
-        function resetTimer() {
-            stopTimer();
+        async function resetTimer() {
+            await stopTimer();
             elapsedTime = 0;
             timerStartTime = null;
             stopTimes = [];
@@ -505,7 +516,6 @@
             const hours = Math.floor(totalSeconds / 3600);
             const minutes = Math.floor((totalSeconds % 3600) / 60);
             const seconds = totalSeconds % 60;
-            const ms = Math.floor((milliseconds % 1000) / 10);
 
             return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
         }
@@ -523,28 +533,59 @@
                 return;
             }
 
-            container.innerHTML = stopTimes.map((st, index) => {
+            // Clear container and use DOM methods to prevent XSS
+            container.innerHTML = '';
+            
+            stopTimes.forEach((st, index) => {
                 const isAssigned = st.assignedTo !== null;
-                const assignedClass = isAssigned ? 'assigned' : '';
                 
-                return `
-                    <div class="stop-time-item ${assignedClass}">
-                        <div class="stop-time-info">
-                            <span class="stop-time-order">${st.order}</span>
-                            <span class="stop-time-value">${st.formattedTime}</span>
-                        </div>
-                        ${isAssigned 
-                            ? `<span class="assigned-name">${st.assignedTo}</span>`
-                            : `<select class="assign-select" onchange="assignParticipant(${index}, this.value)">
-                                <option value="">Assign to...</option>
-                                ${getAvailableParticipants().map(p => 
-                                    `<option value="${p}">${p}</option>`
-                                ).join('')}
-                            </select>`
-                        }
-                    </div>
-                `;
-            }).join('');
+                const item = document.createElement('div');
+                item.className = `stop-time-item ${isAssigned ? 'assigned' : ''}`;
+                
+                // Create info section
+                const info = document.createElement('div');
+                info.className = 'stop-time-info';
+                
+                const orderSpan = document.createElement('span');
+                orderSpan.className = 'stop-time-order';
+                orderSpan.textContent = st.order;
+                info.appendChild(orderSpan);
+                
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'stop-time-value';
+                timeSpan.textContent = st.formattedTime;
+                info.appendChild(timeSpan);
+                
+                item.appendChild(info);
+                
+                // Create assignment section
+                if (isAssigned) {
+                    const assignedName = document.createElement('span');
+                    assignedName.className = 'assigned-name';
+                    assignedName.textContent = st.assignedTo;
+                    item.appendChild(assignedName);
+                } else {
+                    const select = document.createElement('select');
+                    select.className = 'assign-select';
+                    select.onchange = (e) => assignParticipant(index, e.target.value);
+                    
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Assign to...';
+                    select.appendChild(defaultOption);
+                    
+                    getAvailableParticipants().forEach(p => {
+                        const option = document.createElement('option');
+                        option.value = p;
+                        option.textContent = p;
+                        select.appendChild(option);
+                    });
+                    
+                    item.appendChild(select);
+                }
+                
+                container.appendChild(item);
+            });
         }
 
         function getAvailableParticipants() {
