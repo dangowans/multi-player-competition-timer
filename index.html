@@ -312,9 +312,64 @@
         let timerInterval = null;
         let isRunning = false;
         let elapsedTime = 0;
+        let wakeLock = null;
+
+        // Local Storage Functions
+        function saveParticipants() {
+            localStorage.setItem('participants', JSON.stringify(participants));
+        }
+
+        function loadParticipants() {
+            const saved = localStorage.getItem('participants');
+            if (saved) {
+                try {
+                    participants = JSON.parse(saved);
+                } catch (e) {
+                    console.error('Failed to load participants from storage', e);
+                    participants = [];
+                }
+            }
+        }
+
+        // Wake Lock Functions to prevent device sleep
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Wake Lock acquired');
+                    
+                    // Re-acquire wake lock when page becomes visible again
+                    wakeLock.addEventListener('release', () => {
+                        console.log('Wake Lock released');
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to acquire Wake Lock:', err);
+            }
+        }
+
+        async function releaseWakeLock() {
+            if (wakeLock !== null) {
+                try {
+                    await wakeLock.release();
+                    wakeLock = null;
+                    console.log('Wake Lock released manually');
+                } catch (err) {
+                    console.error('Failed to release Wake Lock:', err);
+                }
+            }
+        }
+
+        // Handle visibility change to re-acquire wake lock
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible' && isRunning) {
+                await requestWakeLock();
+            }
+        });
 
         // Initialize
         function init() {
+            loadParticipants();
             updateParticipantsList();
             updateStopTimesList();
         }
@@ -336,6 +391,7 @@
 
             participants.push(name);
             input.value = '';
+            saveParticipants();
             updateParticipantsList();
             hideStatus();
         }
@@ -349,6 +405,7 @@
             }
 
             participants = participants.filter(p => p !== name);
+            saveParticipants();
             updateParticipantsList();
         }
 
@@ -369,7 +426,7 @@
         }
 
         // Timer Functions
-        function startTimer() {
+        async function startTimer() {
             if (participants.length === 0) {
                 showStatus('Please add at least one participant first', 'error');
                 return;
@@ -379,6 +436,9 @@
             timerStartTime = Date.now() - elapsedTime;
             
             timerInterval = setInterval(updateTimerDisplay, 10);
+            
+            // Request wake lock to prevent device from sleeping
+            await requestWakeLock();
             
             document.getElementById('startBtn').disabled = true;
             document.getElementById('stopBtn').disabled = false;
@@ -414,12 +474,16 @@
             }
         }
 
-        function stopTimer() {
+        async function stopTimer() {
             isRunning = false;
             if (timerInterval) {
                 clearInterval(timerInterval);
                 timerInterval = null;
             }
+            
+            // Release wake lock when timer stops
+            await releaseWakeLock();
+            
             document.getElementById('startBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
         }
