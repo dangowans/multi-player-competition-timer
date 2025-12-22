@@ -97,7 +97,7 @@
         }
 
         .collapsible-content {
-            max-height: 1000px;
+            max-height: 2000px;
             overflow: hidden;
             transition: max-height 0.3s ease, opacity 0.3s ease;
             opacity: 1;
@@ -202,8 +202,8 @@
             color: white;
             font-family: 'Courier New', monospace;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            word-break: break-all;
-            overflow-wrap: break-word;
+            white-space: nowrap;
+            overflow: hidden;
         }
 
         .timer-controls {
@@ -685,12 +685,9 @@
             // Clear container and use DOM methods to prevent XSS
             container.innerHTML = '';
             
-            // Reverse the order to show most recent times first
-            const reversedTimes = [...stopTimes].reverse();
-            
-            reversedTimes.forEach((st, reversedIndex) => {
-                // Calculate the original index for assignment
-                const originalIndex = stopTimes.length - 1 - reversedIndex;
+            // Iterate in reverse order to show most recent times first
+            for (let i = stopTimes.length - 1; i >= 0; i--) {
+                const st = stopTimes[i];
                 const isAssigned = st.assignedTo !== null;
                 
                 const item = document.createElement('div');
@@ -721,7 +718,7 @@
                 } else {
                     const select = document.createElement('select');
                     select.className = 'assign-select';
-                    select.onchange = (e) => assignParticipant(originalIndex, e.target.value);
+                    select.onchange = (e) => assignParticipant(i, e.target.value);
                     
                     const defaultOption = document.createElement('option');
                     defaultOption.value = '';
@@ -739,7 +736,7 @@
                 }
                 
                 container.appendChild(item);
-            });
+            }
         }
 
         function getAvailableParticipants() {
