@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Player Competition Timer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        /* Participant Management */
+        .participant-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .participant-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .participant-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .participants-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .participant-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 20px;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .participant-badge .remove-btn {
+            padding: 2px 8px;
+            font-size: 12px;
+            background: #ff4757;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .participant-badge .remove-btn:hover {
+            background: #ff3838;
+        }
+
+        /* Timer Display */
+        .timer-display {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .timer-display .time {
+            font-size: 6em;
+            font-weight: bold;
+            color: white;
+            font-family: 'Courier New', monospace;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .timer-controls button {
+            padding: 15px 40px;
+            font-size: 18px;
+        }
+
+        .start-btn {
+            background: #2ecc71;
+        }
+
+        .start-btn:hover {
+            background: #27ae60;
+        }
+
+        .stop-btn {
+            background: #e74c3c;
+        }
+
+        .stop-btn:hover {
+            background: #c0392b;
+        }
+
+        .reset-btn {
+            background: #95a5a6;
+        }
+
+        .reset-btn:hover {
+            background: #7f8c8d;
+        }
+
+        /* Stop Times List */
+        .stop-times-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .stop-time-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .stop-time-item.assigned {
+            border-color: #2ecc71;
+            background: #d5f4e6;
+        }
+
+        .stop-time-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .stop-time-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            color: #333;
+        }
+
+        .stop-time-order {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 50%;
+            font-weight: bold;
+        }
+
+        .assign-select {
+            padding: 8px 15px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .assigned-name {
+            color: #2ecc71;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        .status-message {
+            text-align: center;
+            padding: 15px;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            color: #856404;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏆 Multi-Player Competition Timer</h1>
+
+        <!-- Participant Management Section -->
+        <div class="section">
+            <h2>Participants</h2>
+            <div class="participant-input">
+                <input type="text" id="participantName" placeholder="Enter participant name" />
+                <button onclick="addParticipant()">Add Participant</button>
+            </div>
+            <div id="participantsList" class="participants-list">
+                <div class="empty-state">No participants added yet</div>
+            </div>
+        </div>
+
+        <!-- Timer Section -->
+        <div class="section">
+            <h2>Timer</h2>
+            <div id="statusMessage" style="display: none;"></div>
+            <div class="timer-display">
+                <div class="time" id="timerDisplay">00:00:00</div>
+            </div>
+            <div class="timer-controls">
+                <button id="startBtn" class="start-btn" onclick="startTimer()">Start</button>
+                <button id="stopBtn" class="stop-btn" onclick="recordStopTime()" disabled>Stop</button>
+                <button class="reset-btn" onclick="resetTimer()">Reset</button>
+            </div>
+        </div>
+
+        <!-- Stop Times Section -->
+        <div class="section">
+            <h2>Recorded Times</h2>
+            <div id="stopTimesList" class="stop-times-list">
+                <div class="empty-state">No times recorded yet</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        let participants = [];
+        let stopTimes = [];
+        let timerStartTime = null;
+        let timerInterval = null;
+        let isRunning = false;
+        let elapsedTime = 0;
+
+        // Initialize
+        function init() {
+            updateParticipantsList();
+            updateStopTimesList();
+        }
+
+        // Participant Management
+        function addParticipant() {
+            const input = document.getElementById('participantName');
+            const name = input.value.trim();
+            
+            if (!name) {
+                showStatus('Please enter a participant name', 'error');
+                return;
+            }
+
+            if (participants.includes(name)) {
+                showStatus('Participant already exists', 'error');
+                return;
+            }
+
+            participants.push(name);
+            input.value = '';
+            updateParticipantsList();
+            hideStatus();
+        }
+
+        function removeParticipant(name) {
+            // Check if participant has an assigned time
+            const hasAssignedTime = stopTimes.some(st => st.assignedTo === name);
+            if (hasAssignedTime) {
+                showStatus('Cannot remove participant with assigned time', 'error');
+                return;
+            }
+
+            participants = participants.filter(p => p !== name);
+            updateParticipantsList();
+        }
+
+        function updateParticipantsList() {
+            const container = document.getElementById('participantsList');
+            
+            if (participants.length === 0) {
+                container.innerHTML = '<div class="empty-state">No participants added yet</div>';
+                return;
+            }
+
+            container.innerHTML = participants.map(name => `
+                <div class="participant-badge">
+                    ${name}
+                    <span class="remove-btn" onclick="removeParticipant('${name}')">×</span>
+                </div>
+            `).join('');
+        }
+
+        // Timer Functions
+        function startTimer() {
+            if (participants.length === 0) {
+                showStatus('Please add at least one participant first', 'error');
+                return;
+            }
+
+            isRunning = true;
+            timerStartTime = Date.now() - elapsedTime;
+            
+            timerInterval = setInterval(updateTimerDisplay, 10);
+            
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            hideStatus();
+        }
+
+        function updateTimerDisplay() {
+            if (!isRunning) return;
+            
+            elapsedTime = Date.now() - timerStartTime;
+            const time = formatTime(elapsedTime);
+            document.getElementById('timerDisplay').textContent = time;
+        }
+
+        function recordStopTime() {
+            if (!isRunning) return;
+
+            const currentTime = elapsedTime;
+            const stopTime = {
+                time: currentTime,
+                formattedTime: formatTime(currentTime),
+                assignedTo: null,
+                order: stopTimes.length + 1
+            };
+
+            stopTimes.push(stopTime);
+            updateStopTimesList();
+
+            // Check if we have enough stop times
+            if (stopTimes.length >= participants.length) {
+                stopTimer();
+                showStatus('All participants have been timed! Assign names to times.', 'success');
+            }
+        }
+
+        function stopTimer() {
+            isRunning = false;
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+        }
+
+        function resetTimer() {
+            stopTimer();
+            elapsedTime = 0;
+            timerStartTime = null;
+            stopTimes = [];
+            document.getElementById('timerDisplay').textContent = '00:00:00';
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            updateStopTimesList();
+            hideStatus();
+        }
+
+        function formatTime(milliseconds) {
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            const ms = Math.floor((milliseconds % 1000) / 10);
+
+            return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+        }
+
+        function pad(num) {
+            return num.toString().padStart(2, '0');
+        }
+
+        // Stop Times Management
+        function updateStopTimesList() {
+            const container = document.getElementById('stopTimesList');
+            
+            if (stopTimes.length === 0) {
+                container.innerHTML = '<div class="empty-state">No times recorded yet</div>';
+                return;
+            }
+
+            container.innerHTML = stopTimes.map((st, index) => {
+                const isAssigned = st.assignedTo !== null;
+                const assignedClass = isAssigned ? 'assigned' : '';
+                
+                return `
+                    <div class="stop-time-item ${assignedClass}">
+                        <div class="stop-time-info">
+                            <span class="stop-time-order">${st.order}</span>
+                            <span class="stop-time-value">${st.formattedTime}</span>
+                        </div>
+                        ${isAssigned 
+                            ? `<span class="assigned-name">${st.assignedTo}</span>`
+                            : `<select class="assign-select" onchange="assignParticipant(${index}, this.value)">
+                                <option value="">Assign to...</option>
+                                ${getAvailableParticipants().map(p => 
+                                    `<option value="${p}">${p}</option>`
+                                ).join('')}
+                            </select>`
+                        }
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getAvailableParticipants() {
+            const assignedNames = stopTimes
+                .filter(st => st.assignedTo !== null)
+                .map(st => st.assignedTo);
+            
+            return participants.filter(p => !assignedNames.includes(p));
+        }
+
+        function assignParticipant(index, participantName) {
+            if (!participantName) return;
+
+            stopTimes[index].assignedTo = participantName;
+            updateStopTimesList();
+
+            // Check if all times are assigned
+            const allAssigned = stopTimes.every(st => st.assignedTo !== null);
+            if (allAssigned && stopTimes.length === participants.length) {
+                showStatus('🎉 All participants have been assigned times!', 'success');
+            }
+        }
+
+        // Status Messages
+        function showStatus(message, type = 'error') {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = `status-message ${type}`;
+            statusEl.style.display = 'block';
+        }
+
+        function hideStatus() {
+            document.getElementById('statusMessage').style.display = 'none';
+        }
+
+        // Handle Enter key in participant input
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('participantName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addParticipant();
+                }
+            });
+            init();
+        });
+    </script>
+</body>
+</html>
