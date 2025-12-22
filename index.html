@@ -328,6 +328,181 @@
             color: #721c24;
         }
 
+        /* Timer Mode Selector */
+        .timer-mode-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Single Mode Participant Selector */
+        .single-mode-selector {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .single-mode-selector.active {
+            display: block;
+        }
+
+        .participant-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            background: white;
+        }
+
+        .participant-select:focus {
+            outline: none;
+            border-color: #5568d3;
+        }
+
+        /* Mobile Portrait Optimization */
+        @media (max-width: 767px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+                border-radius: 15px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 15px;
+            }
+
+            .section {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .section h2 {
+                font-size: 1.2em;
+                margin-bottom: 10px;
+            }
+
+            .timer-display {
+                padding: 20px 10px;
+            }
+
+            .timer-display .time {
+                font-size: min(4em, 18vw);
+            }
+
+            .timer-controls {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .timer-controls button {
+                flex: 1;
+                min-width: 100px;
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+
+            .participant-input {
+                flex-direction: column;
+            }
+
+            .participant-input input,
+            .participant-input button {
+                width: 100%;
+            }
+
+            .stop-time-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .assign-select {
+                width: 100%;
+            }
+        }
+
+        /* Mobile Landscape Optimization */
+        @media (max-width: 767px) and (orientation: landscape) {
+            body {
+                padding: 5px;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.2em;
+                margin-bottom: 10px;
+            }
+
+            .section {
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+
+            .section h2 {
+                font-size: 1em;
+                margin-bottom: 8px;
+            }
+
+            .timer-display {
+                padding: 15px 10px;
+            }
+
+            .timer-display .time {
+                font-size: min(3em, 12vh);
+            }
+
+            .timer-controls button {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            /* Two-column layout for mobile landscape */
+            .timer-recorded-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .collapsible-header {
+                padding: 8px 0;
+            }
+
+            .participant-badge {
+                font-size: 0.85em;
+                padding: 4px 8px;
+            }
+        }
+
         /* Landscape Mode - TV Display Layout */
         @media (orientation: landscape) and (min-width: 768px) {
             .container {
@@ -418,6 +593,20 @@
             </div>
         </div>
 
+        <!-- Timer Mode Selector -->
+        <div class="timer-mode-selector">
+            <button class="mode-btn active" id="togetherModeBtn" onclick="setTimerMode('together')">Together Mode</button>
+            <button class="mode-btn" id="singleModeBtn" onclick="setTimerMode('single')">Single Mode</button>
+        </div>
+
+        <!-- Single Mode Participant Selector -->
+        <div class="single-mode-selector section" id="singleModeSelector">
+            <h2>Select Participant</h2>
+            <select class="participant-select" id="singleParticipantSelect" onchange="selectSingleParticipant()">
+                <option value="">Choose a participant...</option>
+            </select>
+        </div>
+
         <!-- Timer and Recorded Times Container (for landscape layout) -->
         <div class="timer-recorded-container">
             <!-- Timer Section -->
@@ -453,6 +642,8 @@
         let isRunning = false;
         let elapsedTime = 0;
         let wakeLock = null;
+        let timerMode = 'together'; // 'together' or 'single'
+        let selectedParticipant = null;
 
         // Local Storage Functions
         function saveParticipants() {
@@ -523,6 +714,69 @@
             icon.classList.toggle('collapsed');
         }
 
+        // Timer Mode Management
+        function setTimerMode(mode) {
+            timerMode = mode;
+            
+            // Update button styles
+            document.getElementById('togetherModeBtn').classList.toggle('active', mode === 'together');
+            document.getElementById('singleModeBtn').classList.toggle('active', mode === 'single');
+            
+            // Show/hide single mode selector
+            document.getElementById('singleModeSelector').classList.toggle('active', mode === 'single');
+            
+            // Reset timer if changing modes
+            if (isRunning) {
+                resetTimer();
+            }
+            
+            // Update UI based on mode
+            if (mode === 'single') {
+                updateSingleModeParticipantSelector();
+                // Hide recorded times section header in single mode
+                document.querySelector('.times-section h2').textContent = 'Participant Times';
+            } else {
+                document.querySelector('.times-section h2').textContent = 'Recorded Times';
+            }
+            
+            updateStopTimesList();
+        }
+
+        function updateSingleModeParticipantSelector() {
+            const select = document.getElementById('singleParticipantSelect');
+            select.innerHTML = '<option value="">Choose a participant...</option>';
+            
+            // Get participants who don't have times yet
+            const assignedNames = stopTimes
+                .filter(st => st.assignedTo !== null)
+                .map(st => st.assignedTo);
+            
+            const availableParticipants = participants.filter(p => !assignedNames.includes(p));
+            
+            availableParticipants.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                select.appendChild(option);
+            });
+            
+            // Auto-select if only one left
+            if (availableParticipants.length === 1) {
+                select.value = availableParticipants[0];
+                selectedParticipant = availableParticipants[0];
+            }
+        }
+
+        function selectSingleParticipant() {
+            const select = document.getElementById('singleParticipantSelect');
+            selectedParticipant = select.value;
+            
+            if (isRunning) {
+                showStatus('Please stop the timer before selecting a different participant', 'error');
+                return;
+            }
+        }
+
         // Participant Management
         function addParticipant() {
             const input = document.getElementById('participantName');
@@ -542,6 +796,9 @@
             input.value = '';
             saveParticipants();
             updateParticipantsList();
+            if (timerMode === 'single') {
+                updateSingleModeParticipantSelector();
+            }
             hideStatus();
         }
 
@@ -556,6 +813,9 @@
             participants = participants.filter(p => p !== name);
             saveParticipants();
             updateParticipantsList();
+            if (timerMode === 'single') {
+                updateSingleModeParticipantSelector();
+            }
         }
 
         function updateParticipantsList() {
@@ -592,6 +852,14 @@
                 return;
             }
 
+            // Single mode validation
+            if (timerMode === 'single') {
+                if (!selectedParticipant) {
+                    showStatus('Please select a participant first', 'error');
+                    return;
+                }
+            }
+
             isRunning = true;
             timerStartTime = Date.now() - elapsedTime;
             
@@ -620,17 +888,36 @@
             const stopTime = {
                 time: currentTime,
                 formattedTime: formatTime(currentTime),
-                assignedTo: null,
+                assignedTo: timerMode === 'single' ? selectedParticipant : null,
                 order: stopTimes.length + 1
             };
 
             stopTimes.push(stopTime);
             updateStopTimesList();
 
-            // Check if we have enough stop times
-            if (stopTimes.length >= participants.length) {
+            // In single mode, automatically stop and reset
+            if (timerMode === 'single') {
+                const completedParticipant = selectedParticipant; // Save before updating
                 stopTimer();
-                showStatus('All participants have been timed! Assign names to times.', 'success');
+                elapsedTime = 0;
+                document.getElementById('timerDisplay').textContent = '00:00.00';
+                
+                // Update selector for next participant
+                updateSingleModeParticipantSelector();
+                
+                // Check if all participants have times
+                if (stopTimes.length >= participants.length) {
+                    showStatus('🎉 All participants have been timed!', 'success');
+                } else {
+                    const remaining = participants.length - stopTimes.length;
+                    showStatus(`✅ Time recorded for ${completedParticipant}! ${remaining} participant(s) remaining.`, 'success');
+                }
+            } else {
+                // Together mode - check if we have enough stop times
+                if (stopTimes.length >= participants.length) {
+                    stopTimer();
+                    showStatus('All participants have been timed! Assign names to times.', 'success');
+                }
             }
         }
 
@@ -653,10 +940,14 @@
             elapsedTime = 0;
             timerStartTime = null;
             stopTimes = [];
+            selectedParticipant = null;
             document.getElementById('timerDisplay').textContent = '00:00.00';
             document.getElementById('startBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
             updateStopTimesList();
+            if (timerMode === 'single') {
+                updateSingleModeParticipantSelector();
+            }
             hideStatus();
         }
 
