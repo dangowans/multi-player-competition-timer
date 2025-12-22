@@ -6,24 +6,24 @@
     <title>Multi-Player Competition Timer</title>
     
     <!-- Favicon for browsers -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
-    <link rel="icon" type="image/png" sizes="64x64" href="/favicon-64x64.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="128x128" href="/favicon-128x128.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="128x128" href="favicon-128x128.png">
     
     <!-- Apple Touch Icon -->
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon-180x180.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon-180x180.png">
     
     <!-- Android Chrome -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="favicon-512x512.png">
     
     <!-- Web App Manifest -->
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="manifest.json">
     
     <!-- Theme color for browsers -->
     <meta name="theme-color" content="#667eea">
@@ -71,6 +71,41 @@
             color: #667eea;
             margin-bottom: 15px;
             font-size: 1.5em;
+        }
+
+        /* Collapsible Section Header */
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .collapsible-header:hover {
+            opacity: 0.8;
+        }
+
+        .toggle-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+            color: #667eea;
+        }
+
+        .toggle-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .collapsible-content {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            opacity: 1;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
+            opacity: 0;
         }
 
         /* Participant Management */
@@ -154,18 +189,21 @@
         /* Timer Display */
         .timer-display {
             text-align: center;
-            padding: 40px;
+            padding: 40px 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 15px;
             margin-bottom: 20px;
+            overflow: hidden;
         }
 
         .timer-display .time {
-            font-size: 6em;
+            font-size: min(6em, 15vw);
             font-weight: bold;
             color: white;
             font-family: 'Courier New', monospace;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            word-break: break-all;
+            overflow-wrap: break-word;
         }
 
         .timer-controls {
@@ -289,6 +327,74 @@
             border-color: #dc3545;
             color: #721c24;
         }
+
+        /* Landscape Mode - TV Display Layout */
+        @media (orientation: landscape) and (min-width: 768px) {
+            .container {
+                max-width: 100%;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+                margin-bottom: 20px;
+            }
+
+            /* Two-column layout container */
+            .timer-recorded-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                align-items: start;
+            }
+
+            /* Timer section takes full height */
+            .section.timer-section {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .timer-display {
+                padding: 60px 20px;
+            }
+
+            .timer-display .time {
+                font-size: min(10em, 20vw);
+            }
+
+            /* Recorded times section */
+            .section.times-section {
+                max-height: 70vh;
+                overflow-y: auto;
+            }
+
+            /* Participants section stays on top in landscape */
+            .section.participants-section {
+                margin-bottom: 20px;
+            }
+
+            .participant-badge {
+                font-size: 0.9em;
+                padding: 6px 12px;
+            }
+        }
+
+        /* Extra large landscape screens (e.g., TV) */
+        @media (orientation: landscape) and (min-width: 1400px) {
+            .timer-display .time {
+                font-size: min(12em, 18vw);
+            }
+
+            .section h2 {
+                font-size: 1.8em;
+            }
+
+            .stop-time-value {
+                font-size: 1.8em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -296,36 +402,44 @@
         <h1>🏆 Multi-Player Competition Timer</h1>
 
         <!-- Participant Management Section -->
-        <div class="section">
-            <h2>Participants</h2>
-            <div class="participant-input">
-                <input type="text" id="participantName" placeholder="Enter participant name" />
-                <button onclick="addParticipant()">Add Participant</button>
+        <div class="section participants-section">
+            <div class="collapsible-header" onclick="toggleParticipantsSection()">
+                <h2>Participants</h2>
+                <span class="toggle-icon" id="participantsToggle">▼</span>
             </div>
-            <div id="participantsList" class="participants-list">
-                <div class="empty-state">No participants added yet</div>
-            </div>
-        </div>
-
-        <!-- Timer Section -->
-        <div class="section">
-            <h2>Timer</h2>
-            <div id="statusMessage" style="display: none;"></div>
-            <div class="timer-display">
-                <div class="time" id="timerDisplay">00:00:00</div>
-            </div>
-            <div class="timer-controls">
-                <button id="startBtn" class="start-btn" onclick="startTimer()">Start</button>
-                <button id="stopBtn" class="stop-btn" onclick="recordStopTime()" disabled>Stop</button>
-                <button class="reset-btn" onclick="resetTimer()">Reset</button>
+            <div class="collapsible-content" id="participantsContent">
+                <div class="participant-input">
+                    <input type="text" id="participantName" placeholder="Enter participant name" />
+                    <button onclick="addParticipant()">Add Participant</button>
+                </div>
+                <div id="participantsList" class="participants-list">
+                    <div class="empty-state">No participants added yet</div>
+                </div>
             </div>
         </div>
 
-        <!-- Stop Times Section -->
-        <div class="section">
-            <h2>Recorded Times</h2>
-            <div id="stopTimesList" class="stop-times-list">
-                <div class="empty-state">No times recorded yet</div>
+        <!-- Timer and Recorded Times Container (for landscape layout) -->
+        <div class="timer-recorded-container">
+            <!-- Timer Section -->
+            <div class="section timer-section">
+                <h2>Timer</h2>
+                <div id="statusMessage" style="display: none;"></div>
+                <div class="timer-display">
+                    <div class="time" id="timerDisplay">00:00.00</div>
+                </div>
+                <div class="timer-controls">
+                    <button id="startBtn" class="start-btn" onclick="startTimer()">Start</button>
+                    <button id="stopBtn" class="stop-btn" onclick="recordStopTime()" disabled>Stop</button>
+                    <button class="reset-btn" onclick="resetTimer()">Reset</button>
+                </div>
+            </div>
+
+            <!-- Stop Times Section -->
+            <div class="section times-section">
+                <h2>Recorded Times</h2>
+                <div id="stopTimesList" class="stop-times-list">
+                    <div class="empty-state">No times recorded yet</div>
+                </div>
             </div>
         </div>
     </div>
@@ -400,6 +514,15 @@
             updateStopTimesList();
         }
 
+        // Collapsible Section Toggle
+        function toggleParticipantsSection() {
+            const content = document.getElementById('participantsContent');
+            const icon = document.getElementById('participantsToggle');
+            
+            content.classList.toggle('collapsed');
+            icon.classList.toggle('collapsed');
+        }
+
         // Participant Management
         function addParticipant() {
             const input = document.getElementById('participantName');
@@ -454,7 +577,7 @@
                 
                 const removeBtn = document.createElement('span');
                 removeBtn.className = 'remove-btn';
-                removeBtn.textContent = '×';
+                removeBtn.textContent = '🗑️';
                 removeBtn.onclick = () => removeParticipant(name);
                 badge.appendChild(removeBtn);
                 
@@ -530,7 +653,7 @@
             elapsedTime = 0;
             timerStartTime = null;
             stopTimes = [];
-            document.getElementById('timerDisplay').textContent = '00:00:00';
+            document.getElementById('timerDisplay').textContent = '00:00.00';
             document.getElementById('startBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
             updateStopTimesList();
@@ -539,11 +662,11 @@
 
         function formatTime(milliseconds) {
             const totalSeconds = Math.floor(milliseconds / 1000);
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const minutes = Math.floor(totalSeconds / 60);
             const seconds = totalSeconds % 60;
+            const ms = Math.floor((milliseconds % 1000) / 10); // Get centiseconds (2 digits)
 
-            return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+            return `${pad(minutes)}:${pad(seconds)}.${pad(ms)}`;
         }
 
         function pad(num) {
@@ -562,7 +685,12 @@
             // Clear container and use DOM methods to prevent XSS
             container.innerHTML = '';
             
-            stopTimes.forEach((st, index) => {
+            // Reverse the order to show most recent times first
+            const reversedTimes = [...stopTimes].reverse();
+            
+            reversedTimes.forEach((st, reversedIndex) => {
+                // Calculate the original index for assignment
+                const originalIndex = stopTimes.length - 1 - reversedIndex;
                 const isAssigned = st.assignedTo !== null;
                 
                 const item = document.createElement('div');
@@ -593,7 +721,7 @@
                 } else {
                     const select = document.createElement('select');
                     select.className = 'assign-select';
-                    select.onchange = (e) => assignParticipant(index, e.target.value);
+                    select.onchange = (e) => assignParticipant(originalIndex, e.target.value);
                     
                     const defaultOption = document.createElement('option');
                     defaultOption.value = '';
