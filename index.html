@@ -521,6 +521,7 @@
                 grid-template-columns: 1fr 1fr;
                 gap: 20px;
                 align-items: start;
+                min-width: 0;
             }
 
             /* Timer section takes full height */
@@ -529,6 +530,8 @@
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
+                min-width: 0;
+                overflow: hidden;
             }
 
             .timer-display {
@@ -536,13 +539,14 @@
             }
 
             .timer-display .time {
-                font-size: min(10em, 20vw);
+                font-size: min(8em, 15vw);
             }
 
             /* Recorded times section */
             .section.times-section {
                 max-height: 70vh;
                 overflow-y: auto;
+                min-width: 0;
             }
 
             /* Participants section stays on top in landscape */
