@@ -180,6 +180,7 @@
             background: #ff4757;
             border-radius: 50%;
             cursor: pointer;
+            color: white;
         }
 
         .participant-badge .remove-btn:hover {
@@ -194,6 +195,16 @@
             border-radius: 15px;
             margin-bottom: 20px;
             overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .timer-display:hover {
+            transform: scale(1.02);
+        }
+
+        .timer-display:active {
+            transform: scale(0.98);
         }
 
         .timer-display .time {
@@ -490,7 +501,9 @@
             .stop-times-list {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto auto;
                 gap: 10px;
+                grid-auto-flow: column;
             }
 
             .collapsible-header {
@@ -534,7 +547,9 @@
             .stop-times-list {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto auto;
                 gap: 15px;
+                grid-auto-flow: column;
             }
 
             /* Recorded times section */
@@ -609,7 +624,7 @@
         <div class="section timer-section">
             <h2>Timer</h2>
             <div id="statusMessage" style="display: none;"></div>
-            <div class="timer-display">
+            <div class="timer-display" onclick="toggleTimer()">
                 <div class="time" id="timerDisplay">00:00.00</div>
             </div>
             <div class="timer-controls">
@@ -870,6 +885,14 @@
             document.getElementById('startBtn').disabled = true;
             document.getElementById('stopBtn').disabled = false;
             hideStatus();
+        }
+
+        function toggleTimer() {
+            if (isRunning) {
+                stopTimer();
+            } else {
+                startTimer();
+            }
         }
 
         function updateTimerDisplay() {
