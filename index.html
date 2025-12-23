@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Player Competition Timer</title>
+    
+    <!-- Favicon for browsers -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="128x128" href="favicon-128x128.png">
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon-180x180.png">
+    
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="favicon-512x512.png">
+    
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Theme color for browsers -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        /* Collapsible Section Header */
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .collapsible-header:hover {
+            opacity: 0.8;
+        }
+
+        .toggle-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+            color: #667eea;
+        }
+
+        .toggle-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .collapsible-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            opacity: 1;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+        }
+
+        /* Participant Management */
+        .participant-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .participant-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .participant-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .participants-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .participant-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 20px;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .participant-badge .remove-btn {
+            padding: 2px 8px;
+            font-size: 12px;
+            background: #ff4757;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .participant-badge .remove-btn:hover {
+            background: #ff3838;
+        }
+
+        /* Timer Display */
+        .timer-display {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .timer-display .time {
+            font-size: min(6em, 15vw);
+            font-weight: bold;
+            color: white;
+            font-family: 'Courier New', monospace;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .timer-controls button {
+            padding: 15px 40px;
+            font-size: 18px;
+        }
+
+        .start-btn {
+            background: #2ecc71;
+        }
+
+        .start-btn:hover {
+            background: #27ae60;
+        }
+
+        .stop-btn {
+            background: #e74c3c;
+        }
+
+        .stop-btn:hover {
+            background: #c0392b;
+        }
+
+        .reset-btn {
+            background: #95a5a6;
+        }
+
+        .reset-btn:hover {
+            background: #7f8c8d;
+        }
+
+        /* Stop Times List */
+        .stop-times-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .stop-time-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .stop-time-item.assigned {
+            border-color: #2ecc71;
+            background: #d5f4e6;
+        }
+
+        .stop-time-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .stop-time-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            color: #333;
+        }
+
+        .stop-time-order {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 50%;
+            font-weight: bold;
+        }
+
+        .assign-select {
+            padding: 8px 15px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .assigned-name {
+            color: #2ecc71;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        .status-message {
+            text-align: center;
+            padding: 15px;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            color: #856404;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        /* Timer Mode Selector */
+        .timer-mode-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Single Mode Participant Selector */
+        .single-mode-selector {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .single-mode-selector.active {
+            display: block;
+        }
+
+        .participant-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            background: white;
+        }
+
+        .participant-select:focus {
+            outline: none;
+            border-color: #5568d3;
+        }
+
+        /* Mobile Portrait Optimization */
+        @media (max-width: 767px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+                border-radius: 15px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 15px;
+            }
+
+            .section {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .section h2 {
+                font-size: 1.2em;
+                margin-bottom: 10px;
+            }
+
+            .timer-display {
+                padding: 20px 10px;
+            }
+
+            .timer-display .time {
+                font-size: min(4em, 18vw);
+            }
+
+            .timer-controls {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .timer-controls button {
+                flex: 1;
+                min-width: 100px;
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+
+            .participant-input {
+                flex-direction: column;
+            }
+
+            .participant-input input,
+            .participant-input button {
+                width: 100%;
+            }
+
+            .stop-time-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .assign-select {
+                width: 100%;
+            }
+        }
+
+        /* Mobile Landscape Optimization */
+        @media (max-width: 767px) and (orientation: landscape) {
+            body {
+                padding: 5px;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.2em;
+                margin-bottom: 10px;
+            }
+
+            .section {
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+
+            .section h2 {
+                font-size: 1em;
+                margin-bottom: 8px;
+            }
+
+            .timer-display {
+                padding: 15px 10px;
+            }
+
+            .timer-display .time {
+                font-size: min(3em, 12vh);
+            }
+
+            .timer-controls button {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            /* Two-column layout for mobile landscape */
+            .timer-recorded-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .collapsible-header {
+                padding: 8px 0;
+            }
+
+            .participant-badge {
+                font-size: 0.85em;
+                padding: 4px 8px;
+            }
+        }
+
+        /* Landscape Mode - TV Display Layout */
+        @media (orientation: landscape) and (min-width: 768px) {
+            .container {
+                max-width: 100%;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+                margin-bottom: 20px;
+            }
+
+            /* Two-column layout container */
+            .timer-recorded-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                align-items: start;
+                min-width: 0;
+            }
+
+            /* Timer section takes full height */
+            .section.timer-section {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                min-width: 0;
+                overflow: hidden;
+            }
+
+            .timer-display {
+                padding: 40px 20px;
+            }
+
+            .timer-display .time {
+                font-size: min(6em, 12vw);
+            }
+
+            /* Recorded times section */
+            .section.times-section {
+                max-height: 70vh;
+                overflow-y: auto;
+                min-width: 0;
+            }
+
+            /* Participants section stays on top in landscape */
+            .section.participants-section {
+                margin-bottom: 20px;
+            }
+
+            .participant-badge {
+                font-size: 0.9em;
+                padding: 6px 12px;
+            }
+        }
+
+        /* Extra large landscape screens (e.g., TV) */
+        @media (orientation: landscape) and (min-width: 1400px) {
+            .timer-display .time {
+                font-size: min(12em, 18vw);
+            }
+
+            .section h2 {
+                font-size: 1.8em;
+            }
+
+            .stop-time-value {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏆 Multi-Player Competition Timer</h1>
+
+        <!-- Participant Management Section -->
+        <div class="section participants-section">
+            <div class="collapsible-header" onclick="toggleParticipantsSection()">
+                <h2>Participants</h2>
+                <span class="toggle-icon" id="participantsToggle">▼</span>
+            </div>
+            <div class="collapsible-content" id="participantsContent">
+                <div class="participant-input">
+                    <input type="text" id="participantName" placeholder="Enter participant name" />
+                    <button onclick="addParticipant()">Add Participant</button>
+                </div>
+                <div id="participantsList" class="participants-list">
+                    <div class="empty-state">No participants added yet</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timer Mode Selector -->
+        <div class="timer-mode-selector">
+            <button class="mode-btn active" id="togetherModeBtn" onclick="setTimerMode('together')">Together Mode</button>
+            <button class="mode-btn" id="singleModeBtn" onclick="setTimerMode('single')">Single Mode</button>
+        </div>
+
+        <!-- Single Mode Participant Selector -->
+        <div class="single-mode-selector section" id="singleModeSelector">
+            <h2>Select Participant</h2>
+            <select class="participant-select" id="singleParticipantSelect" onchange="selectSingleParticipant()">
+                <option value="">Choose a participant...</option>
+            </select>
+        </div>
+
+        <!-- Timer and Recorded Times Container (for landscape layout) -->
+        <div class="timer-recorded-container">
+            <!-- Timer Section -->
+            <div class="section timer-section">
+                <h2>Timer</h2>
+                <div id="statusMessage" style="display: none;"></div>
+                <div class="timer-display">
+                    <div class="time" id="timerDisplay">00:00.00</div>
+                </div>
+                <div class="timer-controls">
+                    <button id="startBtn" class="start-btn" onclick="startTimer()">Start</button>
+                    <button id="stopBtn" class="stop-btn" onclick="recordStopTime()" disabled>Stop</button>
+                    <button class="reset-btn" onclick="resetTimer()">Reset</button>
+                </div>
+            </div>
+
+            <!-- Stop Times Section -->
+            <div class="section times-section">
+                <h2>Recorded Times</h2>
+                <div id="stopTimesList" class="stop-times-list">
+                    <div class="empty-state">No times recorded yet</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        let participants = [];
+        let stopTimes = [];
+        let timerStartTime = null;
+        let timerInterval = null;
+        let isRunning = false;
+        let elapsedTime = 0;
+        let wakeLock = null;
+        let timerMode = 'together'; // 'together' or 'single'
+        let selectedParticipant = null;
+
+        // Local Storage Functions
+        function saveParticipants() {
+            localStorage.setItem('participants', JSON.stringify(participants));
+        }
+
+        function loadParticipants() {
+            const saved = localStorage.getItem('participants');
+            if (saved) {
+                try {
+                    participants = JSON.parse(saved);
+                } catch (e) {
+                    console.error('Failed to load participants from storage', e);
+                    participants = [];
+                }
+            }
+        }
+
+        // Wake Lock Functions to prevent device sleep
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Wake Lock acquired');
+                    
+                    // Re-acquire wake lock when page becomes visible again
+                    wakeLock.addEventListener('release', () => {
+                        console.log('Wake Lock released');
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to acquire Wake Lock:', err);
+            }
+        }
+
+        async function releaseWakeLock() {
+            if (wakeLock !== null) {
+                try {
+                    await wakeLock.release();
+                    wakeLock = null;
+                    console.log('Wake Lock released manually');
+                } catch (err) {
+                    console.error('Failed to release Wake Lock:', err);
+                }
+            }
+        }
+
+        // Handle visibility change to re-acquire wake lock
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible' && isRunning) {
+                await requestWakeLock();
+            }
+        });
+
+        // Initialize
+        function init() {
+            loadParticipants();
+            updateParticipantsList();
+            updateStopTimesList();
+        }
+
+        // Collapsible Section Toggle
+        function toggleParticipantsSection() {
+            const content = document.getElementById('participantsContent');
+            const icon = document.getElementById('participantsToggle');
+            
+            content.classList.toggle('collapsed');
+            icon.classList.toggle('collapsed');
+        }
+
+        // Timer Mode Management
+        function setTimerMode(mode) {
+            timerMode = mode;
+            
+            // Update button styles
+            document.getElementById('togetherModeBtn').classList.toggle('active', mode === 'together');
+            document.getElementById('singleModeBtn').classList.toggle('active', mode === 'single');
+            
+            // Show/hide single mode selector
+            document.getElementById('singleModeSelector').classList.toggle('active', mode === 'single');
+            
+            // Reset timer if changing modes
+            if (isRunning) {
+                resetTimer();
+            }
+            
+            // Update UI based on mode
+            if (mode === 'single') {
+                updateSingleModeParticipantSelector();
+                // Hide recorded times section header in single mode
+                document.querySelector('.times-section h2').textContent = 'Participant Times';
+            } else {
+                document.querySelector('.times-section h2').textContent = 'Recorded Times';
+            }
+            
+            updateStopTimesList();
+        }
+
+        function updateSingleModeParticipantSelector() {
+            const select = document.getElementById('singleParticipantSelect');
+            select.innerHTML = '<option value="">Choose a participant...</option>';
+            
+            // Get participants who don't have times yet
+            const assignedNames = stopTimes
+                .filter(st => st.assignedTo !== null)
+                .map(st => st.assignedTo);
+            
+            const availableParticipants = participants.filter(p => !assignedNames.includes(p));
+            
+            availableParticipants.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                select.appendChild(option);
+            });
+            
+            // Auto-select if only one left
+            if (availableParticipants.length === 1) {
+                select.value = availableParticipants[0];
+                selectedParticipant = availableParticipants[0];
+            }
+        }
+
+        function selectSingleParticipant() {
+            const select = document.getElementById('singleParticipantSelect');
+            const newSelection = select.value;
+            
+            if (isRunning && newSelection !== selectedParticipant) {
+                showStatus('Please stop the timer before selecting a different participant', 'error');
+                // Revert to previous selection
+                select.value = selectedParticipant || '';
+                return;
+            }
+            
+            selectedParticipant = newSelection;
+        }
+
+        // Participant Management
+        function addParticipant() {
+            const input = document.getElementById('participantName');
+            const name = input.value.trim();
+            
+            if (!name) {
+                showStatus('Please enter a participant name', 'error');
+                return;
+            }
+
+            if (participants.includes(name)) {
+                showStatus('Participant already exists', 'error');
+                return;
+            }
+
+            participants.push(name);
+            input.value = '';
+            saveParticipants();
+            updateParticipantsList();
+            if (timerMode === 'single') {
+                updateSingleModeParticipantSelector();
+            }
+            hideStatus();
+        }
+
+        function removeParticipant(name) {
+            // Check if participant has an assigned time
+            const hasAssignedTime = stopTimes.some(st => st.assignedTo === name);
+            if (hasAssignedTime) {
+                showStatus('Cannot remove participant with assigned time', 'error');
+                return;
+            }
+
+            participants = participants.filter(p => p !== name);
+            saveParticipants();
+            updateParticipantsList();
+            if (timerMode === 'single') {
+                updateSingleModeParticipantSelector();
+            }
+        }
+
+        function updateParticipantsList() {
+            const container = document.getElementById('participantsList');
+            
+            if (participants.length === 0) {
+                container.innerHTML = '<div class="empty-state">No participants added yet</div>';
+                return;
+            }
+
+            // Clear container and use DOM methods to prevent XSS
+            container.innerHTML = '';
+            participants.forEach(name => {
+                const badge = document.createElement('div');
+                badge.className = 'participant-badge';
+                
+                const nameText = document.createTextNode(name);
+                badge.appendChild(nameText);
+                
+                const removeBtn = document.createElement('span');
+                removeBtn.className = 'remove-btn';
+                removeBtn.textContent = '×';
+                removeBtn.onclick = () => removeParticipant(name);
+                badge.appendChild(removeBtn);
+                
+                container.appendChild(badge);
+            });
+        }
+
+        // Timer Functions
+        async function startTimer() {
+            if (participants.length === 0) {
+                showStatus('Please add at least one participant first', 'error');
+                return;
+            }
+
+            // Single mode validation
+            if (timerMode === 'single') {
+                if (!selectedParticipant) {
+                    showStatus('Please select a participant first', 'error');
+                    return;
+                }
+            }
+
+            isRunning = true;
+            timerStartTime = Date.now() - elapsedTime;
+            
+            timerInterval = setInterval(updateTimerDisplay, 10);
+            
+            // Request wake lock to prevent device from sleeping
+            await requestWakeLock();
+            
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            hideStatus();
+        }
+
+        function updateTimerDisplay() {
+            if (!isRunning) return;
+            
+            elapsedTime = Date.now() - timerStartTime;
+            const time = formatTime(elapsedTime);
+            document.getElementById('timerDisplay').textContent = time;
+        }
+
+        function recordStopTime() {
+            if (!isRunning) return;
+
+            const currentTime = elapsedTime;
+            const stopTime = {
+                time: currentTime,
+                formattedTime: formatTime(currentTime),
+                assignedTo: timerMode === 'single' ? selectedParticipant : null,
+                order: stopTimes.length + 1
+            };
+
+            stopTimes.push(stopTime);
+            updateStopTimesList();
+
+            // In single mode, automatically stop and reset
+            if (timerMode === 'single') {
+                const completedParticipant = selectedParticipant; // Save before updating
+                stopTimer();
+                elapsedTime = 0;
+                document.getElementById('timerDisplay').textContent = '00:00.00';
+                
+                // Update selector for next participant
+                updateSingleModeParticipantSelector();
+                
+                // Check if all participants have times
+                if (stopTimes.length >= participants.length) {
+                    showStatus('🎉 All participants have been timed!', 'success');
+                } else {
+                    const remaining = participants.length - stopTimes.length;
+                    showStatus(`✅ Time recorded for ${completedParticipant}! ${remaining} participant(s) remaining.`, 'success');
+                }
+            } else {
+                // Together mode - check if we have enough stop times
+                if (stopTimes.length >= participants.length) {
+                    stopTimer();
+                    showStatus('All participants have been timed! Assign names to times.', 'success');
+                }
+            }
+        }
+
+        async function stopTimer() {
+            isRunning = false;
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            // Release wake lock when timer stops
+            await releaseWakeLock();
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+        }
+
+        async function resetTimer() {
+            await stopTimer();
+            elapsedTime = 0;
+            timerStartTime = null;
+            stopTimes = [];
+            selectedParticipant = null;
+            document.getElementById('timerDisplay').textContent = '00:00.00';
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            updateStopTimesList();
+            if (timerMode === 'single') {
+                updateSingleModeParticipantSelector();
+            }
+            hideStatus();
+        }
+
+        function formatTime(milliseconds) {
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            const ms = Math.floor((milliseconds % 1000) / 10); // Get centiseconds (2 digits)
+
+            return `${pad(minutes)}:${pad(seconds)}.${pad(ms)}`;
+        }
+
+        function pad(num) {
+            return num.toString().padStart(2, '0');
+        }
+
+        // Stop Times Management
+        function updateStopTimesList() {
+            const container = document.getElementById('stopTimesList');
+            
+            if (stopTimes.length === 0) {
+                container.innerHTML = '<div class="empty-state">No times recorded yet</div>';
+                return;
+            }
+
+            // Clear container and use DOM methods to prevent XSS
+            container.innerHTML = '';
+            
+            // Iterate in reverse order to show most recent times first
+            for (let i = stopTimes.length - 1; i >= 0; i--) {
+                const st = stopTimes[i];
+                const isAssigned = st.assignedTo !== null;
+                
+                const item = document.createElement('div');
+                item.className = `stop-time-item ${isAssigned ? 'assigned' : ''}`;
+                
+                // Create info section
+                const info = document.createElement('div');
+                info.className = 'stop-time-info';
+                
+                const orderSpan = document.createElement('span');
+                orderSpan.className = 'stop-time-order';
+                orderSpan.textContent = st.order;
+                info.appendChild(orderSpan);
+                
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'stop-time-value';
+                timeSpan.textContent = st.formattedTime;
+                info.appendChild(timeSpan);
+                
+                item.appendChild(info);
+                
+                // Create assignment section
+                if (isAssigned) {
+                    const assignedName = document.createElement('span');
+                    assignedName.className = 'assigned-name';
+                    assignedName.textContent = st.assignedTo;
+                    item.appendChild(assignedName);
+                } else {
+                    const select = document.createElement('select');
+                    select.className = 'assign-select';
+                    select.onchange = (e) => assignParticipant(i, e.target.value);
+                    
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Assign to...';
+                    select.appendChild(defaultOption);
+                    
+                    getAvailableParticipants().forEach(p => {
+                        const option = document.createElement('option');
+                        option.value = p;
+                        option.textContent = p;
+                        select.appendChild(option);
+                    });
+                    
+                    item.appendChild(select);
+                }
+                
+                container.appendChild(item);
+            }
+        }
+
+        function getAvailableParticipants() {
+            const assignedNames = stopTimes
+                .filter(st => st.assignedTo !== null)
+                .map(st => st.assignedTo);
+            
+            return participants.filter(p => !assignedNames.includes(p));
+        }
+
+        function assignParticipant(index, participantName) {
+            if (!participantName) return;
+
+            stopTimes[index].assignedTo = participantName;
+            updateStopTimesList();
+
+            // Check if all times are assigned
+            const allAssigned = stopTimes.every(st => st.assignedTo !== null);
+            if (allAssigned && stopTimes.length === participants.length) {
+                showStatus('🎉 All participants have been assigned times!', 'success');
+            }
+        }
+
+        // Status Messages
+        function showStatus(message, type = 'error') {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = `status-message ${type}`;
+            statusEl.style.display = 'block';
+        }
+
+        function hideStatus() {
+            document.getElementById('statusMessage').style.display = 'none';
+        }
+
+        // Handle Enter key in participant input
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('participantName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addParticipant();
+                }
+            });
+            init();
+        });
+    </script>
+</body>
+</html>
