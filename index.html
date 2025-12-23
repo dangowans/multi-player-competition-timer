@@ -975,8 +975,11 @@
             // Clear container and use DOM methods to prevent XSS
             container.innerHTML = '';
             
+            // Create array of times with their original indices for efficient lookup
+            const timesWithIndices = stopTimes.map((st, idx) => ({ ...st, originalIndex: idx }));
+            
             // Sort times: unassigned first (by order), then assigned by lowest time
-            const sortedTimes = [...stopTimes].sort((a, b) => {
+            const sortedTimes = timesWithIndices.sort((a, b) => {
                 // Unassigned times come first
                 const aAssigned = a.assignedTo !== null;
                 const bAssigned = b.assignedTo !== null;
@@ -995,7 +998,7 @@
             });
             
             // Iterate through sorted times
-            sortedTimes.forEach((st, index) => {
+            sortedTimes.forEach((st) => {
                 const isAssigned = st.assignedTo !== null;
                 
                 const item = document.createElement('div');
@@ -1026,9 +1029,8 @@
                 } else {
                     const select = document.createElement('select');
                     select.className = 'assign-select';
-                    // Find the original index in stopTimes array
-                    const originalIndex = stopTimes.indexOf(st);
-                    select.onchange = (e) => assignParticipant(originalIndex, e.target.value);
+                    // Use the stored original index
+                    select.onchange = (e) => assignParticipant(st.originalIndex, e.target.value);
                     
                     const defaultOption = document.createElement('option');
                     defaultOption.value = '';
