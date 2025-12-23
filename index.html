@@ -486,8 +486,8 @@
                 font-size: 12px;
             }
 
-            /* Two-column layout for mobile landscape */
-            .timer-recorded-container {
+            /* Two-column layout for recorded times in mobile landscape */
+            .stop-times-list {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
                 gap: 10px;
@@ -515,23 +515,11 @@
                 margin-bottom: 20px;
             }
 
-            /* Two-column layout container */
-            .timer-recorded-container {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 20px;
-                align-items: start;
-                min-width: 0;
-            }
-
-            /* Timer section takes full height */
+            /* Timer section is full width */
             .section.timer-section {
-                height: 100%;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
-                min-width: 0;
-                overflow: hidden;
             }
 
             .timer-display {
@@ -542,11 +530,17 @@
                 font-size: 10vw;
             }
 
+            /* Two-column layout for recorded times in landscape */
+            .stop-times-list {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+
             /* Recorded times section */
             .section.times-section {
                 max-height: 70vh;
                 overflow-y: auto;
-                min-width: 0;
             }
 
             /* Participants section stays on top in landscape */
@@ -611,28 +605,25 @@
             </select>
         </div>
 
-        <!-- Timer and Recorded Times Container (for landscape layout) -->
-        <div class="timer-recorded-container">
-            <!-- Timer Section -->
-            <div class="section timer-section">
-                <h2>Timer</h2>
-                <div id="statusMessage" style="display: none;"></div>
-                <div class="timer-display">
-                    <div class="time" id="timerDisplay">00:00.00</div>
-                </div>
-                <div class="timer-controls">
-                    <button id="startBtn" class="start-btn" onclick="startTimer()">Start</button>
-                    <button id="stopBtn" class="stop-btn" onclick="recordStopTime()" disabled>Stop</button>
-                    <button class="reset-btn" onclick="resetTimer()">Reset</button>
-                </div>
+        <!-- Timer Section -->
+        <div class="section timer-section">
+            <h2>Timer</h2>
+            <div id="statusMessage" style="display: none;"></div>
+            <div class="timer-display">
+                <div class="time" id="timerDisplay">00:00.00</div>
             </div>
+            <div class="timer-controls">
+                <button id="startBtn" class="start-btn" onclick="startTimer()">Start</button>
+                <button id="stopBtn" class="stop-btn" onclick="recordStopTime()" disabled>Stop</button>
+                <button class="reset-btn" onclick="resetTimer()">Reset</button>
+            </div>
+        </div>
 
-            <!-- Stop Times Section -->
-            <div class="section times-section">
-                <h2>Recorded Times</h2>
-                <div id="stopTimesList" class="stop-times-list">
-                    <div class="empty-state">No times recorded yet</div>
-                </div>
+        <!-- Stop Times Section -->
+        <div class="section times-section">
+            <h2>Recorded Times</h2>
+            <div id="stopTimesList" class="stop-times-list">
+                <div class="empty-state">No times recorded yet</div>
             </div>
         </div>
     </div>
@@ -984,9 +975,27 @@
             // Clear container and use DOM methods to prevent XSS
             container.innerHTML = '';
             
-            // Iterate in reverse order to show most recent times first
-            for (let i = stopTimes.length - 1; i >= 0; i--) {
-                const st = stopTimes[i];
+            // Sort times: unassigned first (by order), then assigned by lowest time
+            const sortedTimes = [...stopTimes].sort((a, b) => {
+                // Unassigned times come first
+                const aAssigned = a.assignedTo !== null;
+                const bAssigned = b.assignedTo !== null;
+                
+                if (aAssigned !== bAssigned) {
+                    return aAssigned ? 1 : -1; // Unassigned (false) comes first
+                }
+                
+                // Both assigned: sort by time (lowest first)
+                if (aAssigned && bAssigned) {
+                    return a.time - b.time;
+                }
+                
+                // Both unassigned: sort by order
+                return a.order - b.order;
+            });
+            
+            // Iterate through sorted times
+            sortedTimes.forEach((st, index) => {
                 const isAssigned = st.assignedTo !== null;
                 
                 const item = document.createElement('div');
@@ -1017,7 +1026,9 @@
                 } else {
                     const select = document.createElement('select');
                     select.className = 'assign-select';
-                    select.onchange = (e) => assignParticipant(i, e.target.value);
+                    // Find the original index in stopTimes array
+                    const originalIndex = stopTimes.indexOf(st);
+                    select.onchange = (e) => assignParticipant(originalIndex, e.target.value);
                     
                     const defaultOption = document.createElement('option');
                     defaultOption.value = '';
@@ -1035,7 +1046,7 @@
                 }
                 
                 container.appendChild(item);
-            }
+            });
         }
 
         function getAvailableParticipants() {
