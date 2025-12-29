@@ -82,6 +82,21 @@
             font-size: 1.5em;
         }
 
+        /* Participants section when inline with timer */
+        .participants-section-inline {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #0f0f1e;
+            border-radius: 10px;
+            border: 1px solid #2a2a3e;
+        }
+
+        .participants-section-inline h2 {
+            color: #d4af37;
+            margin-bottom: 0;
+            font-size: 1.5em;
+        }
+
         /* Collapsible Section Header */
         .collapsible-header {
             display: flex;
@@ -733,11 +748,6 @@
                 margin-bottom: 20px;
             }
 
-            /* Participants section no longer needs special flex layout */
-            .section.participants-section {
-                margin-bottom: 20px;
-            }
-
             /* Create side-by-side layout for timer and recorded times */
             .timer-and-times-wrapper {
                 display: grid;
@@ -822,32 +832,30 @@
 </head>
 <body>
     <div class="container">
-        <!-- Participant Management Section -->
-        <div class="section participants-section">
-            <div class="participants-content-wrapper">
-                <div class="collapsible-header" onclick="toggleParticipantsSection()">
-                    <h2>
-                        Competition Participants
-                        <span class="participant-count-badge" id="participantCountBadge">0</span>
-                    </h2>
-                    <i class="fas fa-chevron-down toggle-icon" id="participantsToggle"></i>
-                </div>
-                <div class="collapsible-content" id="participantsContent">
-                    <div class="participant-input">
-                        <input type="text" id="participantName" placeholder="Enter participant name" />
-                        <button onclick="addParticipant()">Add Participant</button>
-                    </div>
-                    <div id="participantsList" class="participants-list">
-                        <div class="empty-state">No participants added yet</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Timer and Times Wrapper for Landscape Layout -->
         <div class="timer-and-times-wrapper">
             <!-- Timer Section -->
             <div class="section timer-section">
+                <!-- Participant Management Section -->
+                <div class="participants-section-inline">
+                    <div class="collapsible-header" onclick="toggleParticipantsSection()">
+                        <h2>
+                            Competition Participants
+                            <span class="participant-count-badge" id="participantCountBadge">0</span>
+                        </h2>
+                        <i class="fas fa-chevron-down toggle-icon" id="participantsToggle"></i>
+                    </div>
+                    <div class="collapsible-content" id="participantsContent">
+                        <div class="participant-input">
+                            <input type="text" id="participantName" placeholder="Enter participant name" />
+                            <button onclick="addParticipant()">Add Participant</button>
+                        </div>
+                        <div id="participantsList" class="participants-list">
+                            <div class="empty-state">No participants added yet</div>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Single Mode Participant Selector -->
                 <div class="single-mode-selector" id="singleModeSelector">
                     <select class="participant-select" id="singleParticipantSelect" onchange="selectSingleParticipant()">
