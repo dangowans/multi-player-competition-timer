@@ -1361,12 +1361,16 @@
             
             // Initialize points for countdown-points mode
             if (timerType === 'countdown-points') {
-                participantPoints = {};
-                participantLastPointTime = {};
-                participants.forEach(p => {
-                    participantPoints[p] = 0;
-                    participantLastPointTime[p] = null;
-                });
+                // Only initialize points if they haven't been initialized yet
+                // In single mode, maintain points across turns
+                if (Object.keys(participantPoints).length === 0) {
+                    participantPoints = {};
+                    participantLastPointTime = {};
+                    participants.forEach(p => {
+                        participantPoints[p] = 0;
+                        participantLastPointTime[p] = null;
+                    });
+                }
                 updateStopTimesList(); // Update display to show participants
             }
             
