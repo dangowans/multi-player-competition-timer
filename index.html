@@ -319,6 +319,12 @@
             background: #6c7a7b;
         }
 
+        /* Reset button container */
+        .reset-button-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
         /* Stop Times List */
         .stop-times-list {
             display: flex;
@@ -677,6 +683,18 @@
             .assign-select {
                 width: 100%;
             }
+            
+            /* Mode and type buttons mobile optimization */
+            .mode-btn, .type-btn {
+                padding: 12px 20px;
+                font-size: 14px;
+                flex: 1;
+                min-width: 0;
+            }
+            
+            .timer-mode-selector, .timer-type-selector {
+                flex-wrap: wrap;
+            }
         }
 
         /* Mobile Landscape Optimization */
@@ -856,6 +874,13 @@
                     </div>
                 </div>
                 
+                <!-- Reset Button -->
+                <div class="reset-button-container">
+                    <button class="reset-btn" onclick="resetTimer();">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+                
                 <!-- Single Mode Participant Selector -->
                 <div class="single-mode-selector" id="singleModeSelector">
                     <select class="participant-select" id="singleParticipantSelect" onchange="selectSingleParticipant()">
@@ -901,9 +926,6 @@
                     </button>
                     <button id="stopBtn" class="stop-btn" onclick="recordStopTime()" disabled>
                         <i class="fas fa-stop"></i> Stop
-                    </button>
-                    <button class="reset-btn" onclick="resetTimer()">
-                        <i class="fas fa-redo"></i> Reset
                     </button>
                 </div>
             </div>
