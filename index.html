@@ -26,7 +26,7 @@
     <link rel="manifest" href="manifest.json">
     
     <!-- Theme color for browsers -->
-    <meta name="theme-color" content="#667eea">
+    <meta name="theme-color" content="#1a1a2e">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
@@ -39,7 +39,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -47,28 +47,30 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: white;
+            background: #1a1a2e;
             border-radius: 20px;
             padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
         }
 
         h1 {
             text-align: center;
-            color: #333;
+            color: #d4af37;
             margin-bottom: 30px;
             font-size: 2.5em;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
         }
 
         .section {
             margin-bottom: 30px;
             padding: 20px;
-            background: #f8f9fa;
+            background: #0f0f1e;
             border-radius: 10px;
+            border: 1px solid #2a2a3e;
         }
 
         .section h2 {
-            color: #667eea;
+            color: #d4af37;
             margin-bottom: 15px;
             font-size: 1.5em;
         }
@@ -89,7 +91,7 @@
         .toggle-icon {
             font-size: 1.2em;
             transition: transform 0.3s ease;
-            color: #667eea;
+            color: #d4af37;
         }
 
         .toggle-icon.collapsed {
@@ -118,20 +120,22 @@
         .participant-input input {
             flex: 1;
             padding: 12px;
-            border: 2px solid #ddd;
+            border: 2px solid #2a2a3e;
             border-radius: 8px;
             font-size: 16px;
+            background: #0a0a0a;
+            color: #ffffff;
         }
 
         .participant-input input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #d4af37;
         }
 
         button {
             padding: 12px 24px;
-            background: #667eea;
-            color: white;
+            background: #d4af37;
+            color: #0a0a0a;
             border: none;
             border-radius: 8px;
             font-size: 16px;
@@ -141,9 +145,9 @@
         }
 
         button:hover {
-            background: #5568d3;
+            background: #c9a23e;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.5);
         }
 
         button:active {
@@ -167,10 +171,10 @@
             align-items: center;
             gap: 8px;
             padding: 8px 15px;
-            background: white;
-            border: 2px solid #667eea;
+            background: #0a0a0a;
+            border: 2px solid #d4af37;
             border-radius: 20px;
-            color: #667eea;
+            color: #d4af37;
             font-weight: 500;
         }
 
@@ -191,12 +195,14 @@
         .timer-display {
             text-align: center;
             padding: 40px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
             border-radius: 15px;
             margin-bottom: 20px;
             overflow: hidden;
             cursor: pointer;
             transition: transform 0.2s;
+            border: 2px solid #d4af37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
         }
 
         .timer-display:hover {
@@ -210,9 +216,9 @@
         .timer-display .time {
             font-size: min(6em, 15vw);
             font-weight: bold;
-            color: white;
+            color: #d4af37;
             font-family: 'Courier New', monospace;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.8), 2px 2px 4px rgba(0, 0, 0, 0.5);
             white-space: nowrap;
             overflow: hidden;
         }
@@ -230,6 +236,7 @@
 
         .start-btn {
             background: #2ecc71;
+            color: #ffffff;
         }
 
         .start-btn:hover {
@@ -238,6 +245,7 @@
 
         .stop-btn {
             background: #e74c3c;
+            color: #ffffff;
         }
 
         .stop-btn:hover {
@@ -245,11 +253,12 @@
         }
 
         .reset-btn {
-            background: #95a5a6;
+            background: #7f8c8d;
+            color: #ffffff;
         }
 
         .reset-btn:hover {
-            background: #7f8c8d;
+            background: #6c7a7b;
         }
 
         /* Stop Times List */
@@ -264,14 +273,14 @@
             align-items: center;
             justify-content: space-between;
             padding: 15px;
-            background: white;
-            border: 2px solid #ddd;
+            background: #0a0a0a;
+            border: 2px solid #2a2a3e;
             border-radius: 8px;
         }
 
         .stop-time-item.assigned {
             border-color: #2ecc71;
-            background: #d5f4e6;
+            background: #0d2818;
         }
 
         .stop-time-info {
@@ -284,12 +293,12 @@
             font-size: 1.5em;
             font-weight: bold;
             font-family: 'Courier New', monospace;
-            color: #333;
+            color: #d4af37;
         }
 
         .stop-time-order {
-            background: #667eea;
-            color: white;
+            background: #d4af37;
+            color: #0a0a0a;
             padding: 5px 12px;
             border-radius: 50%;
             font-weight: bold;
@@ -297,10 +306,12 @@
 
         .assign-select {
             padding: 8px 15px;
-            border: 2px solid #667eea;
+            border: 2px solid #d4af37;
             border-radius: 8px;
             font-size: 14px;
             cursor: pointer;
+            background: #0a0a0a;
+            color: #d4af37;
         }
 
         .assigned-name {
@@ -311,7 +322,7 @@
 
         .empty-state {
             text-align: center;
-            color: #999;
+            color: #7f8c8d;
             padding: 20px;
             font-style: italic;
         }
@@ -349,9 +360,9 @@
 
         .mode-btn {
             padding: 10px 20px;
-            border: 2px solid #667eea;
-            background: white;
-            color: #667eea;
+            border: 2px solid #d4af37;
+            background: #0a0a0a;
+            color: #d4af37;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
@@ -359,13 +370,13 @@
         }
 
         .mode-btn.active {
-            background: #667eea;
-            color: white;
+            background: #d4af37;
+            color: #0a0a0a;
         }
 
         .mode-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
         }
 
         /* Single Mode Participant Selector */
@@ -381,16 +392,17 @@
         .participant-select {
             width: 100%;
             padding: 12px;
-            border: 2px solid #667eea;
+            border: 2px solid #d4af37;
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
-            background: white;
+            background: #0a0a0a;
+            color: #d4af37;
         }
 
         .participant-select:focus {
             outline: none;
-            border-color: #5568d3;
+            border-color: #c9a23e;
         }
 
         /* Mobile Portrait Optimization */
@@ -528,34 +540,42 @@
                 margin-bottom: 20px;
             }
 
-            /* Timer section is full width */
+            /* Create side-by-side layout for timer and recorded times */
+            .timer-and-times-wrapper {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                align-items: start;
+            }
+
+            /* Timer section takes left half */
             .section.timer-section {
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
+                margin-bottom: 0;
             }
 
             .timer-display {
-                padding: 40px 20px;
+                padding: 30px 15px;
             }
 
             .timer-display .time {
-                font-size: 10vw;
+                font-size: 8vw;
             }
 
-            /* Two-column layout for recorded times in landscape */
-            .stop-times-list {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                grid-template-rows: auto auto;
-                gap: 15px;
-                grid-auto-flow: column;
-            }
-
-            /* Recorded times section */
+            /* Recorded times section takes right half */
             .section.times-section {
                 max-height: 70vh;
                 overflow-y: auto;
+                margin-bottom: 0;
+            }
+
+            /* Single column layout for recorded times in landscape */
+            .stop-times-list {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
             }
 
             /* Participants section stays on top in landscape */
@@ -572,7 +592,7 @@
         /* Extra large landscape screens (e.g., TV) */
         @media (orientation: landscape) and (min-width: 1400px) {
             .timer-display .time {
-                font-size: 10vw;
+                font-size: 7vw;
             }
 
             .section h2 {
@@ -620,25 +640,26 @@
             </select>
         </div>
 
-        <!-- Timer Section -->
-        <div class="section timer-section">
-            <h2>Timer</h2>
-            <div id="statusMessage" style="display: none;"></div>
-            <div class="timer-display" onclick="toggleTimer()">
-                <div class="time" id="timerDisplay">00:00.00</div>
+        <!-- Timer and Times Wrapper for Landscape Layout -->
+        <div class="timer-and-times-wrapper">
+            <!-- Timer Section -->
+            <div class="section timer-section">
+                <div id="statusMessage" style="display: none;"></div>
+                <div class="timer-display" onclick="toggleTimer()">
+                    <div class="time" id="timerDisplay">00:00.00</div>
+                </div>
+                <div class="timer-controls">
+                    <button id="startBtn" class="start-btn" onclick="startTimer()">Start</button>
+                    <button id="stopBtn" class="stop-btn" onclick="recordStopTime()" disabled>Stop</button>
+                    <button class="reset-btn" onclick="resetTimer()">Reset</button>
+                </div>
             </div>
-            <div class="timer-controls">
-                <button id="startBtn" class="start-btn" onclick="startTimer()">Start</button>
-                <button id="stopBtn" class="stop-btn" onclick="recordStopTime()" disabled>Stop</button>
-                <button class="reset-btn" onclick="resetTimer()">Reset</button>
-            </div>
-        </div>
 
-        <!-- Stop Times Section -->
-        <div class="section times-section">
-            <h2>Recorded Times</h2>
-            <div id="stopTimesList" class="stop-times-list">
-                <div class="empty-state">No times recorded yet</div>
+            <!-- Stop Times Section -->
+            <div class="section times-section">
+                <div id="stopTimesList" class="stop-times-list">
+                    <div class="empty-state">No times recorded yet</div>
+                </div>
             </div>
         </div>
     </div>
@@ -740,13 +761,9 @@
                 resetTimer();
             }
             
-            // Update UI based on mode
+            // Update UI based on mode (section headers removed for cleaner design)
             if (mode === 'single') {
                 updateSingleModeParticipantSelector();
-                // Hide recorded times section header in single mode
-                document.querySelector('.times-section h2').textContent = 'Participant Times';
-            } else {
-                document.querySelector('.times-section h2').textContent = 'Recorded Times';
             }
             
             updateStopTimesList();
