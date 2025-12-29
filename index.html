@@ -30,6 +30,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
     <style>
         * {
             margin: 0;
@@ -118,6 +121,7 @@
         .participant-input {
             display: flex;
             gap: 10px;
+            margin-top: 15px;
             margin-bottom: 15px;
         }
 
@@ -183,12 +187,16 @@
         }
 
         .participant-badge .remove-btn {
-            padding: 2px 8px;
             font-size: 12px;
             background: #ff4757;
             border-radius: 50%;
             cursor: pointer;
             color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
         }
 
         .participant-badge .remove-btn:hover {
@@ -240,6 +248,13 @@
         .timer-controls button {
             padding: 15px 40px;
             font-size: 18px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timer-controls button i {
+            font-size: 1em;
         }
 
         .start-btn {
@@ -333,6 +348,7 @@
             color: #7f8c8d;
             padding: 20px;
             font-style: italic;
+            font-size: 1.5em;
         }
 
         .status-message {
@@ -344,6 +360,18 @@
             color: #856404;
             margin-bottom: 20px;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .status-message.hidden {
+            display: none;
+        }
+
+        .status-message i {
+            font-size: 1.2em;
         }
 
         .status-message.success {
@@ -365,6 +393,8 @@
             justify-content: center;
             margin-bottom: 20px;
         }
+        
+        /* In landscape mode, this becomes inline-flex via media query */
 
         .mode-btn {
             padding: 10px 20px;
@@ -548,24 +578,26 @@
                 margin-bottom: 20px;
             }
 
-            /* Create side-by-side layout for participants and mode toggles */
+            /* Create a wrapper for participants and mode toggles to sit side by side */
             .section.participants-section {
                 display: inline-block;
-                width: calc(70% - 10px);
                 vertical-align: top;
+                width: calc(70% - 10px);
                 margin-bottom: 20px;
                 margin-right: 20px;
             }
 
+            /* Mode selector takes 30% and displays as vertical column */
             .timer-mode-selector {
                 display: inline-flex;
                 flex-direction: column;
-                width: calc(30% - 10px);
                 vertical-align: top;
-                gap: 10px;
+                width: calc(30% - 10px);
                 margin-bottom: 20px;
+                gap: 10px;
+                justify-content: flex-start;
             }
-
+            
             .timer-mode-selector .mode-btn {
                 width: 100%;
             }
@@ -573,7 +605,7 @@
             /* Create side-by-side layout for timer and recorded times */
             .timer-and-times-wrapper {
                 display: grid;
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 2fr 1fr;
                 gap: 20px;
                 align-items: start;
             }
@@ -591,7 +623,17 @@
             }
 
             .timer-display .time {
-                font-size: 8vw;
+                font-size: 10vw;
+            }
+
+            /* Larger buttons in landscape mode */
+            .timer-controls {
+                gap: 20px;
+            }
+
+            .timer-controls button {
+                padding: 20px 60px;
+                font-size: 24px;
             }
 
             /* Recorded times section takes right half */
@@ -606,6 +648,14 @@
                 display: flex;
                 flex-direction: column;
                 gap: 10px;
+            }
+
+            .stop-time-value {
+                font-size: 3em;
+            }
+
+            .assigned-name {
+                font-size: 2.5em;
             }
 
             .participant-badge {
@@ -625,19 +675,21 @@
             }
 
             .stop-time-value {
-                font-size: 1.8em;
+                font-size: 3.5em;
+            }
+
+            .assigned-name {
+                font-size: 3em;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🏆 Multi-Player Competition Timer</h1>
-
         <!-- Participant Management Section -->
         <div class="section participants-section">
             <div class="collapsible-header" onclick="toggleParticipantsSection()">
-                <h2>Participants</h2>
+                <h2>Competition Participants</h2>
                 <span class="toggle-icon" id="participantsToggle">▼</span>
             </div>
             <div class="collapsible-content" id="participantsContent">
@@ -669,14 +721,20 @@
         <div class="timer-and-times-wrapper">
             <!-- Timer Section -->
             <div class="section timer-section">
-                <div id="statusMessage" style="display: none;"></div>
+                <div id="statusMessage" class="hidden"></div>
                 <div class="timer-display" onclick="toggleTimer()">
                     <div class="time" id="timerDisplay">00:00.00</div>
                 </div>
                 <div class="timer-controls">
-                    <button id="startBtn" class="start-btn" onclick="startTimer()">Start</button>
-                    <button id="stopBtn" class="stop-btn" onclick="recordStopTime()" disabled>Stop</button>
-                    <button class="reset-btn" onclick="resetTimer()">Reset</button>
+                    <button id="startBtn" class="start-btn" onclick="startTimer()">
+                        <i class="fas fa-play"></i> Start
+                    </button>
+                    <button id="stopBtn" class="stop-btn" onclick="recordStopTime()" disabled>
+                        <i class="fas fa-stop"></i> Stop
+                    </button>
+                    <button class="reset-btn" onclick="resetTimer()">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
                 </div>
             </div>
 
@@ -893,8 +951,12 @@
                 
                 const removeBtn = document.createElement('span');
                 removeBtn.className = 'remove-btn';
-                removeBtn.textContent = '×';
                 removeBtn.onclick = () => removeParticipant(name);
+                
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-times';
+                removeBtn.appendChild(icon);
+                
                 badge.appendChild(removeBtn);
                 
                 container.appendChild(badge);
@@ -977,10 +1039,10 @@
                 
                 // Check if all participants have times
                 if (stopTimes.length >= participants.length) {
-                    showStatus('🎉 All participants have been timed!', 'success');
+                    showStatus('All participants have been timed!', 'success');
                 } else {
                     const remaining = participants.length - stopTimes.length;
-                    showStatus(`✅ Time recorded for ${completedParticipant}! ${remaining} participant(s) remaining.`, 'success');
+                    showStatus(`Time recorded for ${completedParticipant}! ${remaining} participant(s) remaining.`, 'success');
                 }
             } else {
                 // Together mode - check if we have enough stop times
@@ -1069,7 +1131,7 @@
             });
             
             // Iterate through sorted times
-            sortedTimes.forEach((st) => {
+            sortedTimes.forEach((st, displayIndex) => {
                 const isAssigned = st.assignedTo !== null;
                 
                 const item = document.createElement('div');
@@ -1081,7 +1143,13 @@
                 
                 const orderSpan = document.createElement('span');
                 orderSpan.className = 'stop-time-order';
-                orderSpan.textContent = st.order;
+                // For assigned times in single mode, show position based on sorted order (fastest to slowest)
+                // For unassigned times or together mode, show the original order
+                if (isAssigned && timerMode === 'single') {
+                    orderSpan.textContent = displayIndex + 1;
+                } else {
+                    orderSpan.textContent = st.order;
+                }
                 info.appendChild(orderSpan);
                 
                 const timeSpan = document.createElement('span');
@@ -1139,20 +1207,35 @@
             // Check if all times are assigned
             const allAssigned = stopTimes.every(st => st.assignedTo !== null);
             if (allAssigned && stopTimes.length === participants.length) {
-                showStatus('🎉 All participants have been assigned times!', 'success');
+                showStatus('All participants have been assigned times!', 'success');
             }
         }
 
         // Status Messages
         function showStatus(message, type = 'error') {
             const statusEl = document.getElementById('statusMessage');
-            statusEl.textContent = message;
+            statusEl.innerHTML = ''; // Clear previous content
+            
+            // Add icon based on type
+            const icon = document.createElement('i');
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle';
+            } else {
+                icon.className = 'fas fa-exclamation-circle';
+            }
+            
+            statusEl.appendChild(icon);
+            
+            // Add message text (gap spacing handled by CSS)
+            const messageText = document.createTextNode(message);
+            statusEl.appendChild(messageText);
+            
             statusEl.className = `status-message ${type}`;
-            statusEl.style.display = 'block';
         }
 
         function hideStatus() {
-            document.getElementById('statusMessage').style.display = 'none';
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.className = 'hidden';
         }
 
         // Handle Enter key in participant input
