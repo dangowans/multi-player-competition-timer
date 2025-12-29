@@ -30,6 +30,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
     <style>
         * {
             margin: 0;
@@ -240,6 +243,13 @@
         .timer-controls button {
             padding: 15px 40px;
             font-size: 18px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timer-controls button i {
+            font-size: 1em;
         }
 
         .start-btn {
@@ -345,6 +355,14 @@
             color: #856404;
             margin-bottom: 20px;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .status-message i {
+            font-size: 1.2em;
         }
 
         .status-message.success {
@@ -685,9 +703,15 @@
                     <div class="time" id="timerDisplay">00:00.00</div>
                 </div>
                 <div class="timer-controls">
-                    <button id="startBtn" class="start-btn" onclick="startTimer()">Start</button>
-                    <button id="stopBtn" class="stop-btn" onclick="recordStopTime()" disabled>Stop</button>
-                    <button class="reset-btn" onclick="resetTimer()">Reset</button>
+                    <button id="startBtn" class="start-btn" onclick="startTimer()">
+                        <i class="fas fa-play"></i> Start
+                    </button>
+                    <button id="stopBtn" class="stop-btn" onclick="recordStopTime()" disabled>
+                        <i class="fas fa-stop"></i> Stop
+                    </button>
+                    <button class="reset-btn" onclick="resetTimer()">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
                 </div>
             </div>
 
@@ -988,10 +1012,10 @@
                 
                 // Check if all participants have times
                 if (stopTimes.length >= participants.length) {
-                    showStatus('🎉 All participants have been timed!', 'success');
+                    showStatus('All participants have been timed!', 'success');
                 } else {
                     const remaining = participants.length - stopTimes.length;
-                    showStatus(`✅ Time recorded for ${completedParticipant}! ${remaining} participant(s) remaining.`, 'success');
+                    showStatus(`Time recorded for ${completedParticipant}! ${remaining} participant(s) remaining.`, 'success');
                 }
             } else {
                 // Together mode - check if we have enough stop times
@@ -1150,16 +1174,31 @@
             // Check if all times are assigned
             const allAssigned = stopTimes.every(st => st.assignedTo !== null);
             if (allAssigned && stopTimes.length === participants.length) {
-                showStatus('🎉 All participants have been assigned times!', 'success');
+                showStatus('All participants have been assigned times!', 'success');
             }
         }
 
         // Status Messages
         function showStatus(message, type = 'error') {
             const statusEl = document.getElementById('statusMessage');
-            statusEl.textContent = message;
+            statusEl.innerHTML = ''; // Clear previous content
+            
+            // Add icon based on type
+            const icon = document.createElement('i');
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle';
+            } else {
+                icon.className = 'fas fa-exclamation-circle';
+            }
+            
+            statusEl.appendChild(icon);
+            
+            // Add message text
+            const messageText = document.createTextNode(' ' + message);
+            statusEl.appendChild(messageText);
+            
             statusEl.className = `status-message ${type}`;
-            statusEl.style.display = 'block';
+            statusEl.style.display = 'flex';
         }
 
         function hideStatus() {
