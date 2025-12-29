@@ -364,18 +364,36 @@
         }
 
         .status-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
             text-align: center;
-            padding: 15px;
+            padding: 15px 30px;
             background: #fff3cd;
             border: 2px solid #ffc107;
             border-radius: 8px;
             color: #856404;
-            margin-bottom: 20px;
             font-weight: 500;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease-out;
+            max-width: 90%;
+        }
+
+        @keyframes slideUp {
+            from {
+                bottom: -100px;
+                opacity: 0;
+            }
+            to {
+                bottom: 20px;
+                opacity: 1;
+            }
         }
 
         .status-message.hidden {
@@ -448,11 +466,11 @@
 
         .participant-select {
             width: 100%;
-            padding: 12px;
-            padding-right: 40px;
+            padding: 20px;
+            padding-right: 50px;
             border: 2px solid #d4af37;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 24px;
             cursor: pointer;
             background: #0a0a0a;
             color: #d4af37;
@@ -462,7 +480,8 @@
             background-image: var(--dropdown-arrow);
             background-repeat: no-repeat;
             background-position: right 12px center;
-            background-size: 14px;
+            background-size: 18px;
+            font-weight: 600;
         }
         }
 
@@ -608,27 +627,34 @@
 
             /* Create a flex container for participants and mode toggles */
             .section.participants-section {
-                display: block;
+                display: flex;
+                flex-direction: row;
+                gap: 20px;
                 width: 100%;
                 margin-bottom: 20px;
                 position: relative;
             }
+            
+            /* Participants content wrapper takes most of the space */
+            .participants-content-wrapper {
+                flex: 1;
+            }
 
-            /* Mode selector positioned to the right of participants header */
+            /* Mode selector positioned as a column on the right side */
             .timer-mode-selector {
-                position: absolute;
-                top: 20px;
-                right: 20px;
                 display: flex;
-                flex-direction: row;
+                flex-direction: column;
                 gap: 10px;
                 margin-bottom: 0;
                 width: auto;
+                min-width: 150px;
+                align-self: flex-start;
             }
             
             .timer-mode-selector .mode-btn {
-                width: auto;
-                padding: 10px 30px;
+                width: 100%;
+                padding: 15px 20px;
+                justify-content: center;
             }
 
             /* Create side-by-side layout for timer and recorded times */
@@ -717,34 +743,35 @@
     <div class="container">
         <!-- Participant Management Section -->
         <div class="section participants-section">
-            <div class="collapsible-header" onclick="toggleParticipantsSection()">
-                <h2>Competition Participants</h2>
-                <i class="fas fa-chevron-down toggle-icon" id="participantsToggle"></i>
-            </div>
-            <div class="collapsible-content" id="participantsContent">
-                <div class="participant-input">
-                    <input type="text" id="participantName" placeholder="Enter participant name" />
-                    <button onclick="addParticipant()">Add Participant</button>
+            <div class="participants-content-wrapper">
+                <div class="collapsible-header" onclick="toggleParticipantsSection()">
+                    <h2>Competition Participants</h2>
+                    <i class="fas fa-chevron-down toggle-icon" id="participantsToggle"></i>
                 </div>
-                <div id="participantsList" class="participants-list">
-                    <div class="empty-state">No participants added yet</div>
+                <div class="collapsible-content" id="participantsContent">
+                    <div class="participant-input">
+                        <input type="text" id="participantName" placeholder="Enter participant name" />
+                        <button onclick="addParticipant()">Add Participant</button>
+                    </div>
+                    <div id="participantsList" class="participants-list">
+                        <div class="empty-state">No participants added yet</div>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Timer Mode Selector -->
-        <div class="timer-mode-selector">
-            <button class="mode-btn active" id="togetherModeBtn" onclick="setTimerMode('together')">
-                <i class="fas fa-users"></i> Together Mode
-            </button>
-            <button class="mode-btn" id="singleModeBtn" onclick="setTimerMode('single')">
-                <i class="fas fa-user"></i> Single Mode
-            </button>
+            
+            <!-- Timer Mode Selector -->
+            <div class="timer-mode-selector">
+                <button class="mode-btn active" id="togetherModeBtn" onclick="setTimerMode('together')">
+                    <i class="fas fa-users"></i> Together Mode
+                </button>
+                <button class="mode-btn" id="singleModeBtn" onclick="setTimerMode('single')">
+                    <i class="fas fa-user"></i> Single Mode
+                </button>
+            </div>
         </div>
 
         <!-- Single Mode Participant Selector -->
         <div class="single-mode-selector section" id="singleModeSelector">
-            <h2>Select Participant</h2>
             <select class="participant-select" id="singleParticipantSelect" onchange="selectSingleParticipant()">
                 <option value="">Choose a participant...</option>
             </select>
@@ -754,7 +781,6 @@
         <div class="timer-and-times-wrapper">
             <!-- Timer Section -->
             <div class="section timer-section">
-                <div id="statusMessage" class="hidden"></div>
                 <div class="timer-display" onclick="toggleTimer()">
                     <div class="time" id="timerDisplay">00:00.00</div>
                 </div>
@@ -778,6 +804,9 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Toast notification for status messages -->
+        <div id="statusMessage" class="hidden"></div>
     </div>
 
     <script>
@@ -904,6 +933,13 @@
                 option.textContent = name;
                 select.appendChild(option);
             });
+            
+            // Clear selectedParticipant if they are no longer available
+            // (This happens when a participant already has a recorded time in Single Mode)
+            if (selectedParticipant && !availableParticipants.includes(selectedParticipant)) {
+                selectedParticipant = null;
+                select.value = '';
+            }
             
             // Auto-select if only one left
             if (availableParticipants.length === 1) {
@@ -1051,6 +1087,13 @@
             if (timerMode === 'single') {
                 if (!selectedParticipant) {
                     showStatus('Please select a participant first', 'error');
+                    return;
+                }
+                
+                // Check if selected participant already has a time
+                const alreadyTimed = stopTimes.some(st => st.assignedTo === selectedParticipant);
+                if (alreadyTimed) {
+                    showStatus('This participant already has a recorded time', 'error');
                     return;
                 }
             }
@@ -1283,9 +1326,17 @@
         }
 
         // Status Messages
-        function showStatus(message, type = 'error') {
+        let statusTimeout = null;
+        
+        function showStatus(message, type = 'error', duration = 3000) {
             const statusEl = document.getElementById('statusMessage');
             statusEl.innerHTML = ''; // Clear previous content
+            
+            // Clear any existing timeout
+            if (statusTimeout) {
+                clearTimeout(statusTimeout);
+                statusTimeout = null;
+            }
             
             // Add icon based on type
             const icon = document.createElement('i');
@@ -1302,11 +1353,23 @@
             statusEl.appendChild(messageText);
             
             statusEl.className = `status-message ${type}`;
+            
+            // Auto-dismiss after duration
+            statusTimeout = setTimeout(() => {
+                hideStatus();
+                statusTimeout = null;
+            }, duration);
         }
 
         function hideStatus() {
             const statusEl = document.getElementById('statusMessage');
             statusEl.className = 'hidden';
+            
+            // Clear timeout if exists
+            if (statusTimeout) {
+                clearTimeout(statusTimeout);
+                statusTimeout = null;
+            }
         }
 
         // Handle Enter key in participant input
