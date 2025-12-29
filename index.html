@@ -461,7 +461,7 @@
         /* In landscape mode, this becomes inline-flex via media query */
 
         .mode-btn {
-            padding: 10px 20px;
+            padding: 15px 40px;
             border: 2px solid #d4af37;
             background: #0a0a0a;
             color: #d4af37;
@@ -472,6 +472,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            font-size: 18px;
         }
         
         .mode-btn i {
@@ -497,7 +498,7 @@
         }
 
         .type-btn {
-            padding: 10px 20px;
+            padding: 15px 40px;
             border: 2px solid #d4af37;
             background: #0a0a0a;
             color: #d4af37;
@@ -508,6 +509,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            font-size: 18px;
         }
 
         .type-btn i {
@@ -731,36 +733,9 @@
                 margin-bottom: 20px;
             }
 
-            /* Create a flex container for participants and mode toggles */
+            /* Participants section no longer needs special flex layout */
             .section.participants-section {
-                display: flex;
-                flex-direction: row;
-                gap: 20px;
-                width: 100%;
                 margin-bottom: 20px;
-                position: relative;
-            }
-            
-            /* Participants content wrapper takes most of the space */
-            .participants-content-wrapper {
-                flex: 1;
-            }
-
-            /* Mode selector positioned as a column on the right side */
-            .timer-mode-selector {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-                margin-bottom: 0;
-                width: auto;
-                min-width: 150px;
-                align-self: flex-start;
-            }
-            
-            .timer-mode-selector .mode-btn {
-                width: 100%;
-                padding: 15px 20px;
-                justify-content: center;
             }
 
             /* Create side-by-side layout for timer and recorded times */
@@ -867,16 +842,6 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Timer Mode Selector -->
-            <div class="timer-mode-selector">
-                <button class="mode-btn active" id="togetherModeBtn" onclick="setTimerMode('together')">
-                    <i class="fas fa-users"></i> Together Mode
-                </button>
-                <button class="mode-btn" id="singleModeBtn" onclick="setTimerMode('single')">
-                    <i class="fas fa-user"></i> Single Mode
-                </button>
-            </div>
         </div>
 
         <!-- Timer and Times Wrapper for Landscape Layout -->
@@ -888,6 +853,16 @@
                     <select class="participant-select" id="singleParticipantSelect" onchange="selectSingleParticipant()">
                         <option value="">Choose a participant...</option>
                     </select>
+                </div>
+                
+                <!-- Timer Mode Selector (moved from participants section) -->
+                <div class="timer-mode-selector">
+                    <button class="mode-btn active" id="togetherModeBtn" onclick="setTimerMode('together')">
+                        <i class="fas fa-users"></i> Together
+                    </button>
+                    <button class="mode-btn" id="singleModeBtn" onclick="setTimerMode('single')">
+                        <i class="fas fa-user"></i> Single
+                    </button>
                 </div>
                 
                 <!-- Timer Type Selector -->
