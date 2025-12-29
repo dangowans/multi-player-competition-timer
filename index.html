@@ -935,6 +935,7 @@
             });
             
             // Clear selectedParticipant if they are no longer available
+            // (This happens when a participant already has a recorded time in Single Mode)
             if (selectedParticipant && !availableParticipants.includes(selectedParticipant)) {
                 selectedParticipant = null;
                 select.value = '';
