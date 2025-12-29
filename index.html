@@ -121,6 +121,7 @@
         .participant-input {
             display: flex;
             gap: 10px;
+            margin-top: 15px;
             margin-bottom: 15px;
         }
 
@@ -186,12 +187,17 @@
         }
 
         .participant-badge .remove-btn {
-            padding: 2px 8px;
+            padding: 4px 6px;
             font-size: 12px;
             background: #ff4757;
             border-radius: 50%;
             cursor: pointer;
             color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
         }
 
         .participant-badge .remove-btn:hover {
@@ -359,6 +365,10 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+        }
+
+        .status-message.hidden {
+            display: none;
         }
 
         .status-message i {
@@ -567,22 +577,27 @@
                 margin-bottom: 20px;
             }
 
-            /* Create side-by-side layout for participants and mode toggles */
-            .section.participants-section {
+            /* Create a wrapper for participants and mode toggles to sit side by side */
+            .section.participants-section,
+            .timer-mode-selector {
                 display: inline-block;
-                width: calc(70% - 10px);
                 vertical-align: top;
+            }
+
+            /* Participants section takes 70% of width */
+            .section.participants-section {
+                width: calc(70% - 10px);
                 margin-bottom: 20px;
                 margin-right: 20px;
             }
 
+            /* Mode selector takes 30% and displays as vertical column */
             .timer-mode-selector {
+                width: calc(30% - 10px);
+                margin-bottom: 20px;
                 display: inline-flex;
                 flex-direction: column;
-                width: calc(30% - 10px);
-                vertical-align: top;
                 gap: 10px;
-                margin-bottom: 20px;
             }
 
             .timer-mode-selector .mode-btn {
@@ -611,6 +626,16 @@
 
             .timer-display .time {
                 font-size: 10vw;
+            }
+
+            /* Larger buttons in landscape mode */
+            .timer-controls {
+                gap: 20px;
+            }
+
+            .timer-controls button {
+                padding: 20px 60px;
+                font-size: 24px;
             }
 
             /* Recorded times section takes right half */
@@ -698,7 +723,7 @@
         <div class="timer-and-times-wrapper">
             <!-- Timer Section -->
             <div class="section timer-section">
-                <div id="statusMessage" style="display: none;"></div>
+                <div id="statusMessage" class="hidden"></div>
                 <div class="timer-display" onclick="toggleTimer()">
                     <div class="time" id="timerDisplay">00:00.00</div>
                 </div>
@@ -928,8 +953,12 @@
                 
                 const removeBtn = document.createElement('span');
                 removeBtn.className = 'remove-btn';
-                removeBtn.textContent = '×';
                 removeBtn.onclick = () => removeParticipant(name);
+                
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-times';
+                removeBtn.appendChild(icon);
+                
                 badge.appendChild(removeBtn);
                 
                 container.appendChild(badge);
@@ -1198,11 +1227,11 @@
             statusEl.appendChild(messageText);
             
             statusEl.className = `status-message ${type}`;
-            statusEl.style.display = 'flex';
         }
 
         function hideStatus() {
-            document.getElementById('statusMessage').style.display = 'none';
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.className = 'hidden';
         }
 
         // Handle Enter key in participant input
