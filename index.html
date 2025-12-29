@@ -789,17 +789,17 @@
             </div>
         </div>
 
-        <!-- Single Mode Participant Selector -->
-        <div class="single-mode-selector section" id="singleModeSelector">
-            <select class="participant-select" id="singleParticipantSelect" onchange="selectSingleParticipant()">
-                <option value="">Choose a participant...</option>
-            </select>
-        </div>
-
         <!-- Timer and Times Wrapper for Landscape Layout -->
         <div class="timer-and-times-wrapper">
             <!-- Timer Section -->
             <div class="section timer-section">
+                <!-- Single Mode Participant Selector -->
+                <div class="single-mode-selector" id="singleModeSelector">
+                    <select class="participant-select" id="singleParticipantSelect" onchange="selectSingleParticipant()">
+                        <option value="">Choose a participant...</option>
+                    </select>
+                </div>
+                
                 <div class="timer-display" onclick="toggleTimer()">
                     <div class="time" id="timerDisplay">00:00.00</div>
                 </div>
