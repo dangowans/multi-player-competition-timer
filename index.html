@@ -97,6 +97,25 @@
             font-size: 1.5em;
         }
 
+        /* Container for participants and reset button side-by-side */
+        .participants-and-reset-wrapper {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .participants-column {
+            flex: 1;
+        }
+
+        .reset-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            min-width: 80px;
+        }
+
         /* Collapsible Section Header */
         .collapsible-header {
             display: flex;
@@ -321,8 +340,25 @@
 
         /* Reset button container */
         .reset-button-container {
-            text-align: center;
-            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .reset-button-container .reset-btn {
+            width: 100%;
+            padding: 15px 10px;
+            white-space: nowrap;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            min-height: 100px;
+        }
+
+        .reset-button-container .reset-btn i {
+            font-size: 1.5em;
         }
 
         /* Stop Times List */
@@ -645,6 +681,27 @@
                 margin-bottom: 10px;
             }
 
+            /* Stack participants and reset button vertically on mobile */
+            .participants-and-reset-wrapper {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .reset-column {
+                min-width: auto;
+            }
+
+            .reset-button-container .reset-btn {
+                min-height: auto;
+                flex-direction: row;
+                padding: 12px 24px;
+                gap: 8px;
+            }
+
+            .reset-button-container .reset-btn i {
+                font-size: 1em;
+            }
+
             .timer-display {
                 padding: 20px 10px;
             }
@@ -854,31 +911,40 @@
         <div class="timer-and-times-wrapper">
             <!-- Timer Section -->
             <div class="section timer-section">
-                <!-- Participant Management Section -->
-                <div class="participants-section-inline">
-                    <div class="collapsible-header" onclick="toggleParticipantsSection()">
-                        <h2>
-                            Competition Participants
-                            <span class="participant-count-badge" id="participantCountBadge">0</span>
-                        </h2>
-                        <i class="fas fa-chevron-down toggle-icon" id="participantsToggle"></i>
-                    </div>
-                    <div class="collapsible-content" id="participantsContent">
-                        <div class="participant-input">
-                            <input type="text" id="participantName" placeholder="Enter participant name" />
-                            <button onclick="addParticipant()">Add Participant</button>
+                <!-- Participants and Reset Button Wrapper -->
+                <div class="participants-and-reset-wrapper">
+                    <!-- Participants Column -->
+                    <div class="participants-column">
+                        <!-- Participant Management Section -->
+                        <div class="participants-section-inline">
+                            <div class="collapsible-header" onclick="toggleParticipantsSection()">
+                                <h2>
+                                    Competition Participants
+                                    <span class="participant-count-badge" id="participantCountBadge">0</span>
+                                </h2>
+                                <i class="fas fa-chevron-down toggle-icon" id="participantsToggle"></i>
+                            </div>
+                            <div class="collapsible-content" id="participantsContent">
+                                <div class="participant-input">
+                                    <input type="text" id="participantName" placeholder="Enter participant name" />
+                                    <button onclick="addParticipant()">Add Participant</button>
+                                </div>
+                                <div id="participantsList" class="participants-list">
+                                    <div class="empty-state">No participants added yet</div>
+                                </div>
+                            </div>
                         </div>
-                        <div id="participantsList" class="participants-list">
-                            <div class="empty-state">No participants added yet</div>
+                    </div>
+                    
+                    <!-- Reset Column -->
+                    <div class="reset-column">
+                        <div class="reset-button-container">
+                            <button class="reset-btn" onclick="resetTimer();">
+                                <i class="fas fa-redo"></i>
+                                <span>Reset</span>
+                            </button>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Reset Button -->
-                <div class="reset-button-container">
-                    <button class="reset-btn" onclick="resetTimer();">
-                        <i class="fas fa-redo"></i> Reset
-                    </button>
                 </div>
                 
                 <!-- Single Mode Participant Selector -->
