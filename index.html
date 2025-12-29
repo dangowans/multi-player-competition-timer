@@ -1209,9 +1209,9 @@
             
             // Don't change state if timer is running
             if (isRunning) {
-                // In countdown-points mode, stop button state is managed by addPoint()
+                // In countdown-points mode, stop button is always enabled during countdown
                 if (timerType === 'countdown-points') {
-                    stopBtn.disabled = !allParticipantsHavePoints();
+                    stopBtn.disabled = false;
                 }
                 return;
             }
@@ -1392,9 +1392,9 @@
             
             document.getElementById('startBtn').disabled = true;
             
-            // In countdown-points mode, keep stop button disabled until all participants have points
+            // In countdown-points mode, enable stop button immediately
             if (timerType === 'countdown-points') {
-                document.getElementById('stopBtn').disabled = !allParticipantsHavePoints();
+                document.getElementById('stopBtn').disabled = false;
             } else {
                 document.getElementById('stopBtn').disabled = false;
             }
@@ -1440,15 +1440,12 @@
         function recordStopTime() {
             if (!isRunning) return;
 
-            // In countdown-points mode, allow stopping if all participants have points
+            // In countdown-points mode, allow stopping at any time
             if (timerType === 'countdown-points') {
-                if (allParticipantsHavePoints()) {
-                    // Stop the countdown early
-                    stopTimer();
-                    updateStopTimesList(); // Update to show sorted results
-                    showStatus("Countdown stopped early! Final scores displayed.", 'success');
-                    return;
-                }
+                // Stop the countdown early
+                stopTimer();
+                updateStopTimesList(); // Update to show sorted results
+                showStatus("Countdown stopped early! Final scores displayed.", 'success');
                 return;
             }
 
@@ -1863,11 +1860,6 @@
             
             // Update display
             updateStopTimesList();
-            
-            // Enable stop button if all participants have points
-            if (allParticipantsHavePoints()) {
-                document.getElementById('stopBtn').disabled = false;
-            }
         }
 
         function getAvailableParticipants() {
