@@ -1193,8 +1193,8 @@
             
             statusEl.appendChild(icon);
             
-            // Add message text
-            const messageText = document.createTextNode(' ' + message);
+            // Add message text (gap spacing handled by CSS)
+            const messageText = document.createTextNode(message);
             statusEl.appendChild(messageText);
             
             statusEl.className = `status-message ${type}`;
