@@ -799,7 +799,7 @@
 
             /* Recorded times section takes right half */
             .section.times-section {
-                max-height: 70vh;
+                max-height: 85vh;
                 overflow-y: auto;
                 margin-bottom: 0;
             }
@@ -953,6 +953,7 @@
         let audioContext = null;
         let participantPoints = {}; // Track points for each participant in countdown-points mode
         let participantLastPointTime = {}; // Track timestamp of last point for each participant
+        let participantsCompletedTurns = []; // Track which participants have completed their countdown-points turns in single mode
 
         // Local Storage Functions
         function saveParticipants() {
@@ -1149,12 +1150,19 @@
             const select = document.getElementById('singleParticipantSelect');
             select.innerHTML = '<option value="">Choose a participant...</option>';
             
-            // Get participants who don't have times yet
-            const assignedNames = stopTimes
-                .filter(st => st.assignedTo !== null)
-                .map(st => st.assignedTo);
+            let availableParticipants;
             
-            const availableParticipants = participants.filter(p => !assignedNames.includes(p));
+            if (timerType === 'countdown-points') {
+                // In countdown-points mode, exclude participants who have completed their turns
+                availableParticipants = participants.filter(p => !participantsCompletedTurns.includes(p));
+            } else {
+                // Get participants who don't have times yet
+                const assignedNames = stopTimes
+                    .filter(st => st.assignedTo !== null)
+                    .map(st => st.assignedTo);
+                
+                availableParticipants = participants.filter(p => !assignedNames.includes(p));
+            }
             
             availableParticipants.forEach(name => {
                 const option = document.createElement('option');
@@ -1201,9 +1209,9 @@
             
             // Don't change state if timer is running
             if (isRunning) {
-                // In countdown-points mode, disable Stop button
+                // In countdown-points mode, stop button state is managed by addPoint()
                 if (timerType === 'countdown-points') {
-                    stopBtn.disabled = true;
+                    stopBtn.disabled = !allParticipantsHavePoints();
                 }
                 return;
             }
@@ -1380,9 +1388,9 @@
             
             document.getElementById('startBtn').disabled = true;
             
-            // In countdown-points mode, the Stop button should remain disabled
+            // In countdown-points mode, keep stop button disabled until all participants have points
             if (timerType === 'countdown-points') {
-                document.getElementById('stopBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = !allParticipantsHavePoints();
             } else {
                 document.getElementById('stopBtn').disabled = false;
             }
@@ -1428,8 +1436,15 @@
         function recordStopTime() {
             if (!isRunning) return;
 
-            // In countdown-points mode, this button should be disabled
+            // In countdown-points mode, allow stopping if all participants have points
             if (timerType === 'countdown-points') {
+                if (allParticipantsHavePoints()) {
+                    // Stop the countdown early
+                    stopTimer();
+                    updateStopTimesList(); // Update to show sorted results
+                    showStatus("Countdown stopped early! Final scores displayed.", 'success');
+                    return;
+                }
                 return;
             }
 
@@ -1486,7 +1501,30 @@
             await stopTimer();
             
             if (timerType === 'countdown-points') {
-                // In countdown-points mode, just stop the timer and show final scores
+                if (timerMode === 'single') {
+                    // Mark current participant as having completed their turn
+                    if (selectedParticipant && !participantsCompletedTurns.includes(selectedParticipant)) {
+                        participantsCompletedTurns.push(selectedParticipant);
+                    }
+                    
+                    // Update selector for next participant
+                    updateSingleModeParticipantSelector();
+                    
+                    // Check if all participants have had a turn
+                    if (participantsCompletedTurns.length >= participants.length) {
+                        // All participants have had turns, show final results
+                        updateStopTimesList(); // Update to show sorted results
+                        showStatus("All participants completed! Final scores displayed.", 'success');
+                    } else {
+                        // More participants to go
+                        const remaining = participants.length - participantsCompletedTurns.length;
+                        showStatus(`Time's up! ${remaining} participant(s) remaining.`, 'success');
+                        updateStopTimesList();
+                    }
+                    return;
+                }
+                
+                // In together mode, just stop the timer and show final scores
                 updateStopTimesList(); // Update to show sorted results
                 showStatus("Time's up! Final scores displayed.", 'success');
                 return;
@@ -1561,6 +1599,7 @@
             selectedParticipant = null;
             participantPoints = {}; // Reset points
             participantLastPointTime = {}; // Reset last point times
+            participantsCompletedTurns = []; // Reset completed turns
             updateTimerDisplayForType();
             document.getElementById('stopBtn').disabled = true;
             updateStopTimesList();
@@ -1639,24 +1678,45 @@
                     item.className = `stop-time-item participant-points-item ${isCurrentInSingle || isWinner ? 'assigned' : ''}`;
                     
                     // Make clickable only when timer is running
+                    // In single mode, only the current participant should be clickable
                     if (isRunning) {
-                        item.style.cursor = 'pointer';
-                        item.onclick = () => addPoint(name);
+                        if (timerMode === 'single') {
+                            // Only the selected participant is clickable
+                            if (name === selectedParticipant) {
+                                item.style.cursor = 'pointer';
+                                item.onclick = () => addPoint(name);
+                            } else {
+                                item.style.cursor = 'not-allowed';
+                                item.style.opacity = '0.5';
+                            }
+                        } else {
+                            // Together mode: all participants are clickable
+                            item.style.cursor = 'pointer';
+                            item.onclick = () => addPoint(name);
+                        }
                     }
                     
-                    // Add position badge when timer has ended
+                    // Create name container with optional position badge
+                    const nameContainer = document.createElement('div');
+                    nameContainer.style.display = 'flex';
+                    nameContainer.style.alignItems = 'center';
+                    nameContainer.style.gap = '15px';
+                    nameContainer.style.justifyContent = 'center';
+                    
+                    // Add position badge when timer has ended (inline with name)
                     if (!isRunning && Object.keys(participantPoints).length > 0) {
                         const positionBadge = document.createElement('span');
                         positionBadge.className = 'stop-time-order';
                         positionBadge.textContent = index + 1;
-                        positionBadge.style.marginBottom = '10px';
-                        item.appendChild(positionBadge);
+                        nameContainer.appendChild(positionBadge);
                     }
                     
                     const nameSpan = document.createElement('span');
                     nameSpan.className = 'assigned-name';
                     nameSpan.textContent = name;
-                    item.appendChild(nameSpan);
+                    nameContainer.appendChild(nameSpan);
+                    
+                    item.appendChild(nameContainer);
                     
                     const pointsSpan = document.createElement('div');
                     pointsSpan.className = 'stop-time-info';
@@ -1772,6 +1832,14 @@
             });
         }
 
+        function allParticipantsHavePoints() {
+            // Check if all participants have at least one point
+            if (timerType !== 'countdown-points') return false;
+            if (participants.length === 0) return false;
+            
+            return participants.every(p => (participantPoints[p] || 0) > 0);
+        }
+
         function addPoint(participantName) {
             if (!isRunning) return;
             
@@ -1791,6 +1859,11 @@
             
             // Update display
             updateStopTimesList();
+            
+            // Enable stop button if all participants have points
+            if (allParticipantsHavePoints()) {
+                document.getElementById('stopBtn').disabled = false;
+            }
         }
 
         function getAvailableParticipants() {
