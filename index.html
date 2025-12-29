@@ -329,12 +329,20 @@
 
         .assign-select {
             padding: 8px 15px;
+            padding-right: 35px;
             border: 2px solid #d4af37;
             border-radius: 8px;
             font-size: 14px;
             cursor: pointer;
             background: #0a0a0a;
             color: #d4af37;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'%3e%3cpath fill='%23d4af37' d='M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8L32 192c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 12px;
         }
 
         .assigned-name {
@@ -437,12 +445,21 @@
         .participant-select {
             width: 100%;
             padding: 12px;
+            padding-right: 40px;
             border: 2px solid #d4af37;
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
             background: #0a0a0a;
             color: #d4af37;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'%3e%3cpath fill='%23d4af37' d='M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8L32 192c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 14px;
+        }
         }
 
         .participant-select:focus {
@@ -698,7 +715,7 @@
         <div class="section participants-section">
             <div class="collapsible-header" onclick="toggleParticipantsSection()">
                 <h2>Competition Participants</h2>
-                <span class="toggle-icon" id="participantsToggle">▼</span>
+                <i class="fas fa-chevron-down toggle-icon" id="participantsToggle"></i>
             </div>
             <div class="collapsible-content" id="participantsContent">
                 <div class="participant-input">
