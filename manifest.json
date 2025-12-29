@@ -4,8 +4,8 @@
   "description": "A timer for tracking multiple participants in a timed game",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#667eea",
-  "theme_color": "#667eea",
+  "background_color": "#0a0a0a",
+  "theme_color": "#1a1a2e",
   "icons": [
     {
       "src": "favicon-192x192.png",
