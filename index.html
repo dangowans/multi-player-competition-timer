@@ -806,7 +806,7 @@
         </div>
         
         <!-- Toast notification for status messages -->
-        <div id="statusMessage" class="hidden"></div>
+        <div id="statusMessage" class="status-message hidden"></div>
     </div>
 
     <script>
@@ -1363,7 +1363,7 @@
 
         function hideStatus() {
             const statusEl = document.getElementById('statusMessage');
-            statusEl.className = 'hidden';
+            statusEl.className = 'status-message hidden';
             
             // Clear timeout if exists
             if (statusTimeout) {
