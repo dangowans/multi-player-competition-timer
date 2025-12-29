@@ -1487,7 +1487,8 @@
             
             if (timerType === 'countdown-points') {
                 // In countdown-points mode, just stop the timer and show final scores
-                showStatus('Time\'s up! Final scores displayed.', 'success');
+                updateStopTimesList(); // Update to show sorted results
+                showStatus("Time's up! Final scores displayed.", 'success');
                 return;
             }
             
