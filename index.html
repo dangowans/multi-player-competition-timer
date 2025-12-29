@@ -319,12 +319,6 @@
             background: #6c7a7b;
         }
 
-        /* Reset button when in header */
-        .collapsible-header .reset-btn {
-            padding: 8px 16px;
-            font-size: 14px;
-        }
-
         /* Stop Times List */
         .stop-times-list {
             display: flex;
@@ -683,6 +677,18 @@
             .assign-select {
                 width: 100%;
             }
+            
+            /* Mode and type buttons mobile optimization */
+            .mode-btn, .type-btn {
+                padding: 12px 20px;
+                font-size: 14px;
+                flex: 1;
+                min-width: 0;
+            }
+            
+            .timer-mode-selector, .timer-type-selector {
+                flex-wrap: wrap;
+            }
         }
 
         /* Mobile Landscape Optimization */
@@ -849,12 +855,7 @@
                             Competition Participants
                             <span class="participant-count-badge" id="participantCountBadge">0</span>
                         </h2>
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <button class="reset-btn" onclick="event.stopPropagation(); resetTimer();">
-                                <i class="fas fa-redo"></i> Reset
-                            </button>
-                            <i class="fas fa-chevron-down toggle-icon" id="participantsToggle"></i>
-                        </div>
+                        <i class="fas fa-chevron-down toggle-icon" id="participantsToggle"></i>
                     </div>
                     <div class="collapsible-content" id="participantsContent">
                         <div class="participant-input">
@@ -865,6 +866,13 @@
                             <div class="empty-state">No participants added yet</div>
                         </div>
                     </div>
+                </div>
+                
+                <!-- Reset Button -->
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <button class="reset-btn" onclick="resetTimer();">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
                 </div>
                 
                 <!-- Single Mode Participant Selector -->
