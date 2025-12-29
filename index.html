@@ -34,6 +34,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
     <style>
+        :root {
+            --dropdown-arrow: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'%3e%3cpath fill='%23d4af37' d='M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8L32 192c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z'/%3e%3c/svg%3e");
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -329,12 +333,20 @@
 
         .assign-select {
             padding: 8px 15px;
+            padding-right: 35px;
             border: 2px solid #d4af37;
             border-radius: 8px;
             font-size: 14px;
             cursor: pointer;
             background: #0a0a0a;
             color: #d4af37;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: var(--dropdown-arrow);
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 12px;
         }
 
         .assigned-name {
@@ -405,6 +417,13 @@
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .mode-btn i {
+            font-size: 1em;
         }
 
         .mode-btn.active {
@@ -430,12 +449,21 @@
         .participant-select {
             width: 100%;
             padding: 12px;
+            padding-right: 40px;
             border: 2px solid #d4af37;
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
             background: #0a0a0a;
             color: #d4af37;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: var(--dropdown-arrow);
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 14px;
+        }
         }
 
         .participant-select:focus {
@@ -578,28 +606,29 @@
                 margin-bottom: 20px;
             }
 
-            /* Create a wrapper for participants and mode toggles to sit side by side */
+            /* Create a flex container for participants and mode toggles */
             .section.participants-section {
-                display: inline-block;
-                vertical-align: top;
-                width: calc(70% - 10px);
+                display: block;
+                width: 100%;
                 margin-bottom: 20px;
-                margin-right: 20px;
+                position: relative;
             }
 
-            /* Mode selector takes 30% and displays as vertical column */
+            /* Mode selector positioned to the right of participants header */
             .timer-mode-selector {
-                display: inline-flex;
-                flex-direction: column;
-                vertical-align: top;
-                width: calc(30% - 10px);
-                margin-bottom: 20px;
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                display: flex;
+                flex-direction: row;
                 gap: 10px;
-                justify-content: flex-start;
+                margin-bottom: 0;
+                width: auto;
             }
             
             .timer-mode-selector .mode-btn {
-                width: 100%;
+                width: auto;
+                padding: 10px 30px;
             }
 
             /* Create side-by-side layout for timer and recorded times */
@@ -690,7 +719,7 @@
         <div class="section participants-section">
             <div class="collapsible-header" onclick="toggleParticipantsSection()">
                 <h2>Competition Participants</h2>
-                <span class="toggle-icon" id="participantsToggle">▼</span>
+                <i class="fas fa-chevron-down toggle-icon" id="participantsToggle"></i>
             </div>
             <div class="collapsible-content" id="participantsContent">
                 <div class="participant-input">
@@ -705,8 +734,12 @@
 
         <!-- Timer Mode Selector -->
         <div class="timer-mode-selector">
-            <button class="mode-btn active" id="togetherModeBtn" onclick="setTimerMode('together')">Together Mode</button>
-            <button class="mode-btn" id="singleModeBtn" onclick="setTimerMode('single')">Single Mode</button>
+            <button class="mode-btn active" id="togetherModeBtn" onclick="setTimerMode('together')">
+                <i class="fas fa-users"></i> Together Mode
+            </button>
+            <button class="mode-btn" id="singleModeBtn" onclick="setTimerMode('single')">
+                <i class="fas fa-user"></i> Single Mode
+            </button>
         </div>
 
         <!-- Single Mode Participant Selector -->
@@ -817,6 +850,7 @@
             loadParticipants();
             updateParticipantsList();
             updateStopTimesList();
+            updateStartButtonState();
         }
 
         // Collapsible Section Toggle
@@ -850,6 +884,7 @@
             }
             
             updateStopTimesList();
+            updateStartButtonState();
         }
 
         function updateSingleModeParticipantSelector() {
@@ -875,6 +910,8 @@
                 select.value = availableParticipants[0];
                 selectedParticipant = availableParticipants[0];
             }
+            
+            updateStartButtonState();
         }
 
         function selectSingleParticipant() {
@@ -889,6 +926,38 @@
             }
             
             selectedParticipant = newSelection;
+            updateStartButtonState();
+        }
+        
+        // Update Start button state based on current mode and selections
+        function updateStartButtonState() {
+            const startBtn = document.getElementById('startBtn');
+            
+            // Don't change state if timer is running
+            if (isRunning) {
+                return;
+            }
+            
+            // Check if we have participants
+            if (participants.length === 0) {
+                startBtn.disabled = true;
+                return;
+            }
+            
+            // Check if all participants have been timed
+            if (stopTimes.length >= participants.length) {
+                startBtn.disabled = true;
+                return;
+            }
+            
+            // In single mode, require a participant to be selected
+            if (timerMode === 'single' && !selectedParticipant) {
+                startBtn.disabled = true;
+                return;
+            }
+            
+            // All conditions met, enable the button
+            startBtn.disabled = false;
         }
 
         // Participant Management
@@ -913,6 +982,7 @@
             if (timerMode === 'single') {
                 updateSingleModeParticipantSelector();
             }
+            updateStartButtonState();
             hideStatus();
         }
 
@@ -930,6 +1000,7 @@
             if (timerMode === 'single') {
                 updateSingleModeParticipantSelector();
             }
+            updateStartButtonState();
         }
 
         function updateParticipantsList() {
@@ -1063,8 +1134,8 @@
             // Release wake lock when timer stops
             await releaseWakeLock();
             
-            document.getElementById('startBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
+            updateStartButtonState();
         }
 
         async function resetTimer() {
@@ -1074,12 +1145,12 @@
             stopTimes = [];
             selectedParticipant = null;
             document.getElementById('timerDisplay').textContent = '00:00.00';
-            document.getElementById('startBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
             updateStopTimesList();
             if (timerMode === 'single') {
                 updateSingleModeParticipantSelector();
             }
+            updateStartButtonState();
             hideStatus();
         }
 
