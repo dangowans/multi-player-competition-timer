@@ -573,7 +573,7 @@
             /* Create side-by-side layout for timer and recorded times */
             .timer-and-times-wrapper {
                 display: grid;
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 2fr 1fr;
                 gap: 20px;
                 align-items: start;
             }
@@ -591,7 +591,7 @@
             }
 
             .timer-display .time {
-                font-size: 8vw;
+                font-size: 10vw;
             }
 
             /* Recorded times section takes right half */
@@ -606,6 +606,14 @@
                 display: flex;
                 flex-direction: column;
                 gap: 10px;
+            }
+
+            .stop-time-value {
+                font-size: 3em;
+            }
+
+            .assigned-name {
+                font-size: 2.5em;
             }
 
             .participant-badge {
@@ -632,8 +640,6 @@
 </head>
 <body>
     <div class="container">
-        <h1>🏆 Multi-Player Competition Timer</h1>
-
         <!-- Participant Management Section -->
         <div class="section participants-section">
             <div class="collapsible-header" onclick="toggleParticipantsSection()">
