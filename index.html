@@ -187,7 +187,6 @@
         }
 
         .participant-badge .remove-btn {
-            padding: 4px 6px;
             font-size: 12px;
             background: #ff4757;
             border-radius: 50%;
@@ -578,14 +577,9 @@
             }
 
             /* Create a wrapper for participants and mode toggles to sit side by side */
-            .section.participants-section,
-            .timer-mode-selector {
+            .section.participants-section {
                 display: inline-block;
                 vertical-align: top;
-            }
-
-            /* Participants section takes 70% of width */
-            .section.participants-section {
                 width: calc(70% - 10px);
                 margin-bottom: 20px;
                 margin-right: 20px;
@@ -593,10 +587,11 @@
 
             /* Mode selector takes 30% and displays as vertical column */
             .timer-mode-selector {
-                width: calc(30% - 10px);
-                margin-bottom: 20px;
                 display: inline-flex;
                 flex-direction: column;
+                vertical-align: top;
+                width: calc(30% - 10px);
+                margin-bottom: 20px;
                 gap: 10px;
             }
 
