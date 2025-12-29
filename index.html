@@ -405,6 +405,13 @@
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .mode-btn i {
+            font-size: 1em;
         }
 
         .mode-btn.active {
@@ -706,8 +713,12 @@
 
         <!-- Timer Mode Selector -->
         <div class="timer-mode-selector">
-            <button class="mode-btn active" id="togetherModeBtn" onclick="setTimerMode('together')">Together Mode</button>
-            <button class="mode-btn" id="singleModeBtn" onclick="setTimerMode('single')">Single Mode</button>
+            <button class="mode-btn active" id="togetherModeBtn" onclick="setTimerMode('together')">
+                <i class="fas fa-users"></i> Together Mode
+            </button>
+            <button class="mode-btn" id="singleModeBtn" onclick="setTimerMode('single')">
+                <i class="fas fa-user"></i> Single Mode
+            </button>
         </div>
 
         <!-- Single Mode Participant Selector -->
