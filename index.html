@@ -989,12 +989,6 @@
         }
 
         async function resetTimer() {
-            // Prevent reset if enough times have been recorded
-            if (stopTimes.length >= participants.length) {
-                showStatus('Cannot reset - all participants have been timed.', 'error');
-                return;
-            }
-
             await stopTimer();
             elapsedTime = 0;
             timerStartTime = null;
