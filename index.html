@@ -589,7 +589,7 @@
 
             /* Mode selector takes 30% and displays as vertical column */
             .timer-mode-selector {
-                display: inline-flex !important;
+                display: inline-flex;
                 flex-direction: column;
                 vertical-align: top;
                 width: calc(30% - 10px);
@@ -597,7 +597,7 @@
                 gap: 10px;
                 justify-content: flex-start;
             }
-
+            
             .timer-mode-selector .mode-btn {
                 width: 100%;
             }
@@ -1131,7 +1131,7 @@
             });
             
             // Iterate through sorted times
-            sortedTimes.forEach((st) => {
+            sortedTimes.forEach((st, displayIndex) => {
                 const isAssigned = st.assignedTo !== null;
                 
                 const item = document.createElement('div');
@@ -1143,7 +1143,13 @@
                 
                 const orderSpan = document.createElement('span');
                 orderSpan.className = 'stop-time-order';
-                orderSpan.textContent = st.order;
+                // For assigned times in single mode, show position based on sorted order (fastest to slowest)
+                // For unassigned times or together mode, show the original order
+                if (isAssigned && timerMode === 'single') {
+                    orderSpan.textContent = displayIndex + 1;
+                } else {
+                    orderSpan.textContent = st.order;
+                }
                 info.appendChild(orderSpan);
                 
                 const timeSpan = document.createElement('span');
