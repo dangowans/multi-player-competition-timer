@@ -93,6 +93,22 @@
 
         .collapsible-header h2 {
             margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .participant-count-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #d4af37;
+            color: #0a0a0a;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            min-width: 28px;
         }
 
         .collapsible-header:hover {
@@ -745,7 +761,10 @@
         <div class="section participants-section">
             <div class="participants-content-wrapper">
                 <div class="collapsible-header" onclick="toggleParticipantsSection()">
-                    <h2>Competition Participants</h2>
+                    <h2>
+                        Competition Participants
+                        <span class="participant-count-badge" id="participantCountBadge">0</span>
+                    </h2>
                     <i class="fas fa-chevron-down toggle-icon" id="participantsToggle"></i>
                 </div>
                 <div class="collapsible-content" id="participantsContent">
@@ -1041,6 +1060,12 @@
 
         function updateParticipantsList() {
             const container = document.getElementById('participantsList');
+            const countBadge = document.getElementById('participantCountBadge');
+            
+            // Update count badge
+            if (countBadge) {
+                countBadge.textContent = participants.length;
+            }
             
             if (participants.length === 0) {
                 container.innerHTML = '<div class="empty-state">No participants added yet</div>';
