@@ -1833,14 +1833,6 @@
             });
         }
 
-        function allParticipantsHavePoints() {
-            // Check if all participants have at least one point
-            if (timerType !== 'countdown-points') return false;
-            if (participants.length === 0) return false;
-            
-            return participants.every(p => (participantPoints[p] || 0) > 0);
-        }
-
         function addPoint(participantName) {
             if (!isRunning) return;
             
