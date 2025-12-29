@@ -578,28 +578,29 @@
                 margin-bottom: 20px;
             }
 
-            /* Create a wrapper for participants and mode toggles to sit side by side */
+            /* Create a flex container for participants and mode toggles */
             .section.participants-section {
-                display: inline-block;
-                vertical-align: top;
-                width: calc(70% - 10px);
+                display: block;
+                width: 100%;
                 margin-bottom: 20px;
-                margin-right: 20px;
+                position: relative;
             }
 
-            /* Mode selector takes 30% and displays as vertical column */
+            /* Mode selector positioned to the right of participants header */
             .timer-mode-selector {
-                display: inline-flex;
-                flex-direction: column;
-                vertical-align: top;
-                width: calc(30% - 10px);
-                margin-bottom: 20px;
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                display: flex;
+                flex-direction: row;
                 gap: 10px;
-                justify-content: flex-start;
+                margin-bottom: 0;
+                width: auto;
             }
             
             .timer-mode-selector .mode-btn {
-                width: 100%;
+                width: auto;
+                padding: 10px 30px;
             }
 
             /* Create side-by-side layout for timer and recorded times */
@@ -817,6 +818,7 @@
             loadParticipants();
             updateParticipantsList();
             updateStopTimesList();
+            updateStartButtonState();
         }
 
         // Collapsible Section Toggle
@@ -850,6 +852,7 @@
             }
             
             updateStopTimesList();
+            updateStartButtonState();
         }
 
         function updateSingleModeParticipantSelector() {
@@ -875,6 +878,8 @@
                 select.value = availableParticipants[0];
                 selectedParticipant = availableParticipants[0];
             }
+            
+            updateStartButtonState();
         }
 
         function selectSingleParticipant() {
@@ -889,6 +894,38 @@
             }
             
             selectedParticipant = newSelection;
+            updateStartButtonState();
+        }
+        
+        // Update Start button state based on current mode and selections
+        function updateStartButtonState() {
+            const startBtn = document.getElementById('startBtn');
+            
+            // Don't change state if timer is running
+            if (isRunning) {
+                return;
+            }
+            
+            // Check if we have participants
+            if (participants.length === 0) {
+                startBtn.disabled = true;
+                return;
+            }
+            
+            // Check if all participants have been timed
+            if (stopTimes.length >= participants.length) {
+                startBtn.disabled = true;
+                return;
+            }
+            
+            // In single mode, require a participant to be selected
+            if (timerMode === 'single' && !selectedParticipant) {
+                startBtn.disabled = true;
+                return;
+            }
+            
+            // All conditions met, enable the button
+            startBtn.disabled = false;
         }
 
         // Participant Management
@@ -913,6 +950,7 @@
             if (timerMode === 'single') {
                 updateSingleModeParticipantSelector();
             }
+            updateStartButtonState();
             hideStatus();
         }
 
@@ -930,6 +968,7 @@
             if (timerMode === 'single') {
                 updateSingleModeParticipantSelector();
             }
+            updateStartButtonState();
         }
 
         function updateParticipantsList() {
@@ -1063,8 +1102,8 @@
             // Release wake lock when timer stops
             await releaseWakeLock();
             
-            document.getElementById('startBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
+            updateStartButtonState();
         }
 
         async function resetTimer() {
@@ -1074,12 +1113,12 @@
             stopTimes = [];
             selectedParticipant = null;
             document.getElementById('timerDisplay').textContent = '00:00.00';
-            document.getElementById('startBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
             updateStopTimesList();
             if (timerMode === 'single') {
                 updateSingleModeParticipantSelector();
             }
+            updateStartButtonState();
             hideStatus();
         }
 
