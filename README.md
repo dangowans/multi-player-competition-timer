@@ -8,6 +8,11 @@ A web-based timer application designed for tracking multiple competitors in game
   - **Together Mode**: All participants start together, and you record finish times as each person completes
   - **Single Mode**: Time each participant individually, one at a time
 
+- **Three Timer Types:**
+  - **Stopwatch**: Count up from zero
+  - **Countdown**: Count down from a set duration
+  - **Countdown with Points**: Count down while tracking points for each participant (click participants to add points)
+
 - **Participant Management**: Add, remove, and track unlimited participants
 
 - **Large Display**: Optimized for viewing on TVs and large screens with high-contrast design
@@ -34,6 +39,11 @@ A web-based timer application designed for tracking multiple competitors in game
    - **Together Mode**: For races or competitions where everyone starts simultaneously
    - **Single Mode**: For turn-based timing where each participant goes individually
 
+3. **Choose a Timer Type**:
+   - **Stopwatch**: For timing how long something takes
+   - **Countdown**: For time-limited challenges
+   - **Countdown with Points**: For scoring games where you click participants to award points during a countdown
+
 ### Together Mode
 
 1. Add all participants first
@@ -51,12 +61,38 @@ A web-based timer application designed for tracking multiple competitors in game
 5. The next participant is automatically selected for you
 6. Repeat until all participants have completed
 
+### Countdown with Points Mode
+
+Perfect for scoring games, trivia competitions, or any activity where you want to track points during a timed round.
+
+**Together Mode:**
+1. Add all participants first
+2. Select "Countdown with Points" timer type
+3. Set the countdown duration (in seconds)
+4. Click "Start" to begin the countdown
+5. Click on any participant's name to add a point (plays a beep sound)
+6. When time expires, participants are automatically ranked by:
+   - Most points first
+   - If tied, whoever got their last point earliest wins
+7. Position badges (1st, 2nd, 3rd) are displayed with final scores
+
+**Single Mode:**
+1. Add all participants first
+2. Select "Countdown with Points" timer type
+3. Choose a participant from the dropdown
+4. Set the countdown duration (in seconds)
+5. Click "Start" to begin - the selected participant appears at the top highlighted in green
+6. Click on the participant's name to add points (plays a beep sound)
+7. When time expires, final score is displayed
+8. Results are ranked across all participants who have completed
+
 ### Controls
 
 - **Start Button**: Begin timing
-- **Stop Button**: Record the current time (in Together Mode) or finish timing the current participant (in Single Mode)
-- **Reset Button**: Clear all recorded times and reset the timer to 00:00.00
-- **Timer Display**: Click/tap the timer display to start or stop (same as the buttons)
+- **Stop Button**: Record the current time (in Stopwatch/Countdown modes) or finish timing the current participant (in Single Mode). Not used in Countdown with Points mode.
+- **Reset Button**: Clear all recorded times/points and reset the timer
+- **Timer Display**: Click/tap the timer display to start or stop (same as the buttons, except in Countdown with Points mode)
+- **Participant Names**: In Countdown with Points mode, click participant names to add points (with beep sound)
 
 ## Landscape/TV Optimization
 
@@ -71,6 +107,7 @@ When viewed in landscape orientation on screens 768px or wider:
 - Pure HTML/CSS/JavaScript - no build process required
 - Uses localStorage to persist participant data
 - Supports Web Wake Lock API to prevent screen dimming during active timing
+- Web Audio API for beep sounds when adding points
 - Progressive Web App (PWA) ready with manifest and icons
 
 ## Installation
