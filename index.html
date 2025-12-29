@@ -48,7 +48,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
         }
 
         .container {
@@ -326,6 +326,20 @@
         .stop-time-item.assigned {
             border-color: #2ecc71;
             background: #0d2818;
+        }
+
+        .participant-points-item {
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .participant-points-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+        }
+
+        .participant-points-item:active {
+            transform: scale(0.98);
         }
 
         .stop-time-info {
@@ -884,6 +898,9 @@
                     <button class="type-btn" id="countdownBtn" onclick="setTimerType('countdown')">
                         <i class="fas fa-hourglass-half"></i> Countdown
                     </button>
+                    <button class="type-btn" id="countdownPointsBtn" onclick="setTimerType('countdown-points')">
+                        <i class="fas fa-trophy"></i> Countdown with Points
+                    </button>
                 </div>
                 
                 <!-- Countdown Duration Selector -->
@@ -931,9 +948,11 @@
         let wakeLock = null;
         let timerMode = 'together'; // 'together' or 'single'
         let selectedParticipant = null;
-        let timerType = 'stopwatch'; // 'stopwatch' or 'countdown'
+        let timerType = 'stopwatch'; // 'stopwatch', 'countdown', or 'countdown-points'
         let countdownDuration = 60000; // Default 60 seconds in milliseconds
         let audioContext = null;
+        let participantPoints = {}; // Track points for each participant in countdown-points mode
+        let participantLastPointTime = {}; // Track timestamp of last point for each participant
 
         // Local Storage Functions
         function saveParticipants() {
@@ -1086,16 +1105,18 @@
             updateStartButtonState();
         }
 
-        // Timer Type Management (Stopwatch/Countdown)
+        // Timer Type Management (Stopwatch/Countdown/Countdown with Points)
         function setTimerType(type) {
             timerType = type;
             
             // Update button styles
             document.getElementById('stopwatchBtn').classList.toggle('active', type === 'stopwatch');
             document.getElementById('countdownBtn').classList.toggle('active', type === 'countdown');
+            document.getElementById('countdownPointsBtn').classList.toggle('active', type === 'countdown-points');
             
-            // Show/hide countdown duration selector
-            document.getElementById('countdownDurationSelector').classList.toggle('active', type === 'countdown');
+            // Show/hide countdown duration selector (for both countdown types)
+            document.getElementById('countdownDurationSelector').classList.toggle('active', 
+                type === 'countdown' || type === 'countdown-points');
             
             // Reset timer if changing types
             if (isRunning) {
@@ -1104,6 +1125,9 @@
             
             // Update timer display based on type
             updateTimerDisplayForType();
+            
+            // Update stop times list to show participants or times
+            updateStopTimesList();
         }
 
         function updateCountdownDuration() {
@@ -1114,7 +1138,7 @@
         }
 
         function updateTimerDisplayForType() {
-            if (timerType === 'countdown' && !isRunning) {
+            if ((timerType === 'countdown' || timerType === 'countdown-points') && !isRunning) {
                 document.getElementById('timerDisplay').textContent = formatTime(countdownDuration);
             } else if (!isRunning) {
                 document.getElementById('timerDisplay').textContent = '00:00.00';
@@ -1173,9 +1197,14 @@
         // Update Start button state based on current mode and selections
         function updateStartButtonState() {
             const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
             
             // Don't change state if timer is running
             if (isRunning) {
+                // In countdown-points mode, disable Stop button
+                if (timerType === 'countdown-points') {
+                    stopBtn.disabled = true;
+                }
                 return;
             }
             
@@ -1185,7 +1214,18 @@
                 return;
             }
             
-            // Check if all participants have been timed
+            // In countdown-points mode, we don't need to check for recorded times
+            if (timerType === 'countdown-points') {
+                // In single mode, require a participant to be selected
+                if (timerMode === 'single' && !selectedParticipant) {
+                    startBtn.disabled = true;
+                    return;
+                }
+                startBtn.disabled = false;
+                return;
+            }
+            
+            // Check if all participants have been timed (for regular modes)
             if (stopTimes.length >= participants.length) {
                 startBtn.disabled = true;
                 return;
@@ -1311,8 +1351,19 @@
 
             isRunning = true;
             
+            // Initialize points for countdown-points mode
+            if (timerType === 'countdown-points') {
+                participantPoints = {};
+                participantLastPointTime = {};
+                participants.forEach(p => {
+                    participantPoints[p] = 0;
+                    participantLastPointTime[p] = null;
+                });
+                updateStopTimesList(); // Update display to show participants
+            }
+            
             // Initialize elapsed time based on timer type
-            if (timerType === 'countdown') {
+            if (timerType === 'countdown' || timerType === 'countdown-points') {
                 elapsedTime = countdownDuration;
                 timerStartTime = Date.now();
             } else {
@@ -1328,7 +1379,14 @@
             playBeep();
             
             document.getElementById('startBtn').disabled = true;
-            document.getElementById('stopBtn').disabled = false;
+            
+            // In countdown-points mode, the Stop button should remain disabled
+            if (timerType === 'countdown-points') {
+                document.getElementById('stopBtn').disabled = true;
+            } else {
+                document.getElementById('stopBtn').disabled = false;
+            }
+            
             hideStatus();
         }
 
@@ -1343,7 +1401,7 @@
         function updateTimerDisplay() {
             if (!isRunning) return;
             
-            if (timerType === 'countdown') {
+            if (timerType === 'countdown' || timerType === 'countdown-points') {
                 // Countdown mode: calculate remaining time
                 const remainingTime = countdownDuration - (Date.now() - timerStartTime);
                 
@@ -1369,6 +1427,11 @@
 
         function recordStopTime() {
             if (!isRunning) return;
+
+            // In countdown-points mode, this button should be disabled
+            if (timerType === 'countdown-points') {
+                return;
+            }
 
             // Calculate the actual time for recording
             let recordedTime;
@@ -1421,6 +1484,12 @@
         async function autoFinishCountdown() {
             // Called when countdown reaches zero
             await stopTimer();
+            
+            if (timerType === 'countdown-points') {
+                // In countdown-points mode, just stop the timer and show final scores
+                showStatus('Time\'s up! Final scores displayed.', 'success');
+                return;
+            }
             
             if (timerMode === 'together') {
                 // In together mode, assign countdown duration to all participants who don't have a recorded time
@@ -1489,6 +1558,8 @@
             timerStartTime = null;
             stopTimes = [];
             selectedParticipant = null;
+            participantPoints = {}; // Reset points
+            participantLastPointTime = {}; // Reset last point times
             updateTimerDisplayForType();
             document.getElementById('stopBtn').disabled = true;
             updateStopTimesList();
@@ -1516,6 +1587,100 @@
         function updateStopTimesList() {
             const container = document.getElementById('stopTimesList');
             
+            // In countdown-points mode, show participants with points instead of times
+            if (timerType === 'countdown-points') {
+                if (participants.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No participants added yet</div>';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                
+                // Determine which participants to show based on mode
+                let participantsToShow = [];
+                if (timerMode === 'single') {
+                    // In single mode, show current participant at top
+                    if (selectedParticipant) {
+                        participantsToShow = [selectedParticipant, ...participants.filter(p => p !== selectedParticipant)];
+                    } else {
+                        participantsToShow = [...participants];
+                    }
+                } else {
+                    // In together mode, show all participants
+                    participantsToShow = [...participants];
+                }
+                
+                // If timer is not running and countdown ended, sort by points (highest first), 
+                // then by last point time (earliest wins)
+                if (!isRunning && Object.keys(participantPoints).length > 0) {
+                    participantsToShow = participantsToShow.sort((a, b) => {
+                        const aPoints = participantPoints[a] || 0;
+                        const bPoints = participantPoints[b] || 0;
+                        
+                        // Sort by points descending (most points first)
+                        if (aPoints !== bPoints) {
+                            return bPoints - aPoints;
+                        }
+                        
+                        // If points are equal, sort by last point time (earlier time wins)
+                        const aTime = participantLastPointTime[a] || Infinity;
+                        const bTime = participantLastPointTime[b] || Infinity;
+                        return aTime - bTime;
+                    });
+                }
+                
+                participantsToShow.forEach((name, index) => {
+                    const points = participantPoints[name] || 0;
+                    const isCurrentInSingle = timerMode === 'single' && isRunning && index === 0 && selectedParticipant;
+                    const isWinner = !isRunning && Object.keys(participantPoints).length > 0 && index === 0;
+                    
+                    const item = document.createElement('div');
+                    item.className = `stop-time-item participant-points-item ${isCurrentInSingle || isWinner ? 'assigned' : ''}`;
+                    
+                    // Make clickable only when timer is running
+                    if (isRunning) {
+                        item.style.cursor = 'pointer';
+                        item.onclick = () => addPoint(name);
+                    }
+                    
+                    // Add position badge when timer has ended
+                    if (!isRunning && Object.keys(participantPoints).length > 0) {
+                        const positionBadge = document.createElement('span');
+                        positionBadge.className = 'stop-time-order';
+                        positionBadge.textContent = index + 1;
+                        positionBadge.style.marginBottom = '10px';
+                        item.appendChild(positionBadge);
+                    }
+                    
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'assigned-name';
+                    nameSpan.textContent = name;
+                    item.appendChild(nameSpan);
+                    
+                    const pointsSpan = document.createElement('div');
+                    pointsSpan.className = 'stop-time-info';
+                    pointsSpan.style.marginTop = '10px';
+                    
+                    const pointsValue = document.createElement('span');
+                    pointsValue.className = 'stop-time-value';
+                    pointsValue.textContent = points;
+                    pointsSpan.appendChild(pointsValue);
+                    
+                    const pointsLabel = document.createElement('span');
+                    pointsLabel.style.color = '#d4af37';
+                    pointsLabel.style.fontSize = '1.5em';
+                    pointsLabel.style.marginLeft = '10px';
+                    pointsLabel.textContent = points === 1 ? 'point' : 'points';
+                    pointsSpan.appendChild(pointsLabel);
+                    
+                    item.appendChild(pointsSpan);
+                    container.appendChild(item);
+                });
+                
+                return;
+            }
+            
+            // Regular time recording mode
             if (stopTimes.length === 0) {
                 container.innerHTML = '<div class="empty-state">No times recorded yet</div>';
                 return;
@@ -1604,6 +1769,27 @@
                 
                 container.appendChild(item);
             });
+        }
+
+        function addPoint(participantName) {
+            if (!isRunning) return;
+            
+            // Initialize points if not exists
+            if (!participantPoints[participantName]) {
+                participantPoints[participantName] = 0;
+            }
+            
+            // Add point
+            participantPoints[participantName]++;
+            
+            // Record timestamp of this point
+            participantLastPointTime[participantName] = Date.now();
+            
+            // Play beep sound when point is added
+            playBeep();
+            
+            // Update display
+            updateStopTimesList();
         }
 
         function getAvailableParticipants() {
