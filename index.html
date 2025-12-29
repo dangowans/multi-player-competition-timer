@@ -474,6 +474,78 @@
             box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
         }
 
+        /* Timer Type Selector */
+        .timer-type-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .type-btn {
+            padding: 10px 20px;
+            border: 2px solid #d4af37;
+            background: #0a0a0a;
+            color: #d4af37;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .type-btn i {
+            font-size: 1em;
+        }
+
+        .type-btn.active {
+            background: #d4af37;
+            color: #0a0a0a;
+        }
+
+        .type-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Countdown Duration Selector */
+        .countdown-duration-selector {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .countdown-duration-selector.active {
+            display: flex;
+        }
+
+        .countdown-duration-selector label {
+            color: #d4af37;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .countdown-duration-selector input {
+            width: 100px;
+            padding: 8px;
+            border: 2px solid #d4af37;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #0a0a0a;
+            color: #d4af37;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .countdown-duration-selector input:focus {
+            outline: none;
+            border-color: #c9a23e;
+        }
+
         /* Single Mode Participant Selector */
         .single-mode-selector {
             display: none;
@@ -804,6 +876,22 @@
                     </select>
                 </div>
                 
+                <!-- Timer Type Selector -->
+                <div class="timer-type-selector">
+                    <button class="type-btn active" id="stopwatchBtn" onclick="setTimerType('stopwatch')">
+                        <i class="fas fa-stopwatch"></i> Stopwatch
+                    </button>
+                    <button class="type-btn" id="countdownBtn" onclick="setTimerType('countdown')">
+                        <i class="fas fa-hourglass-half"></i> Countdown
+                    </button>
+                </div>
+                
+                <!-- Countdown Duration Selector -->
+                <div class="countdown-duration-selector" id="countdownDurationSelector">
+                    <label for="countdownDurationInput">Duration (seconds):</label>
+                    <input type="number" id="countdownDurationInput" min="1" max="3600" value="60" onchange="updateCountdownDuration()" />
+                </div>
+                
                 <div class="timer-display" onclick="toggleTimer()">
                     <div class="time" id="timerDisplay">00:00.00</div>
                 </div>
@@ -843,6 +931,9 @@
         let wakeLock = null;
         let timerMode = 'together'; // 'together' or 'single'
         let selectedParticipant = null;
+        let timerType = 'stopwatch'; // 'stopwatch' or 'countdown'
+        let countdownDuration = 60000; // Default 60 seconds in milliseconds
+        let audioContext = null;
 
         // Local Storage Functions
         function saveParticipants() {
@@ -897,6 +988,58 @@
             }
         });
 
+        // Sound Generation Functions
+        function getAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioContext;
+        }
+
+        function playBeep() {
+            try {
+                const ctx = getAudioContext();
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                oscillator.frequency.value = 800; // 800 Hz beep
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + 0.1);
+            } catch (err) {
+                console.error('Failed to play beep:', err);
+            }
+        }
+
+        function playBuzzer() {
+            try {
+                const ctx = getAudioContext();
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                oscillator.frequency.value = 200; // 200 Hz buzzer (lower, more serious)
+                oscillator.type = 'sawtooth';
+                
+                gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + 0.5);
+            } catch (err) {
+                console.error('Failed to play buzzer:', err);
+            }
+        }
+
         // Initialize
         function init() {
             loadParticipants();
@@ -937,6 +1080,41 @@
             
             updateStopTimesList();
             updateStartButtonState();
+        }
+
+        // Timer Type Management (Stopwatch/Countdown)
+        function setTimerType(type) {
+            timerType = type;
+            
+            // Update button styles
+            document.getElementById('stopwatchBtn').classList.toggle('active', type === 'stopwatch');
+            document.getElementById('countdownBtn').classList.toggle('active', type === 'countdown');
+            
+            // Show/hide countdown duration selector
+            document.getElementById('countdownDurationSelector').classList.toggle('active', type === 'countdown');
+            
+            // Reset timer if changing types
+            if (isRunning) {
+                resetTimer();
+            }
+            
+            // Update timer display based on type
+            updateTimerDisplayForType();
+        }
+
+        function updateCountdownDuration() {
+            const input = document.getElementById('countdownDurationInput');
+            const seconds = parseInt(input.value) || 60;
+            countdownDuration = seconds * 1000; // Convert to milliseconds
+            updateTimerDisplayForType();
+        }
+
+        function updateTimerDisplayForType() {
+            if (timerType === 'countdown' && !isRunning) {
+                document.getElementById('timerDisplay').textContent = formatTime(countdownDuration);
+            } else if (!isRunning) {
+                document.getElementById('timerDisplay').textContent = '00:00.00';
+            }
         }
 
         function updateSingleModeParticipantSelector() {
@@ -1128,12 +1306,22 @@
             }
 
             isRunning = true;
-            timerStartTime = Date.now() - elapsedTime;
+            
+            // Initialize elapsed time based on timer type
+            if (timerType === 'countdown') {
+                elapsedTime = countdownDuration;
+                timerStartTime = Date.now();
+            } else {
+                timerStartTime = Date.now() - elapsedTime;
+            }
             
             timerInterval = setInterval(updateTimerDisplay, 10);
             
             // Request wake lock to prevent device from sleeping
             await requestWakeLock();
+            
+            // Play beep sound when starting
+            playBeep();
             
             document.getElementById('startBtn').disabled = true;
             document.getElementById('stopBtn').disabled = false;
@@ -1151,31 +1339,61 @@
         function updateTimerDisplay() {
             if (!isRunning) return;
             
-            elapsedTime = Date.now() - timerStartTime;
-            const time = formatTime(elapsedTime);
-            document.getElementById('timerDisplay').textContent = time;
+            if (timerType === 'countdown') {
+                // Countdown mode: calculate remaining time
+                const remainingTime = countdownDuration - (Date.now() - timerStartTime);
+                
+                if (remainingTime <= 0) {
+                    // Timer has reached zero
+                    elapsedTime = countdownDuration;
+                    document.getElementById('timerDisplay').textContent = formatTime(0);
+                    
+                    // Auto-stop and play buzzer
+                    playBuzzer();
+                    autoFinishCountdown();
+                    return;
+                }
+                
+                elapsedTime = remainingTime;
+                document.getElementById('timerDisplay').textContent = formatTime(remainingTime);
+            } else {
+                // Stopwatch mode: calculate elapsed time
+                elapsedTime = Date.now() - timerStartTime;
+                document.getElementById('timerDisplay').textContent = formatTime(elapsedTime);
+            }
         }
 
         function recordStopTime() {
             if (!isRunning) return;
 
-            const currentTime = elapsedTime;
+            // Calculate the actual time for recording
+            let recordedTime;
+            if (timerType === 'countdown') {
+                // For countdown, record the elapsed time from start (how fast they were)
+                recordedTime = countdownDuration - elapsedTime;
+            } else {
+                recordedTime = elapsedTime;
+            }
+
             const stopTime = {
-                time: currentTime,
-                formattedTime: formatTime(currentTime),
+                time: recordedTime,
+                formattedTime: formatTime(recordedTime),
                 assignedTo: timerMode === 'single' ? selectedParticipant : null,
                 order: stopTimes.length + 1
             };
 
             stopTimes.push(stopTime);
             updateStopTimesList();
+            
+            // Play beep sound when recording time
+            playBeep();
 
             // In single mode, automatically stop and reset
             if (timerMode === 'single') {
                 const completedParticipant = selectedParticipant; // Save before updating
                 stopTimer();
                 elapsedTime = 0;
-                document.getElementById('timerDisplay').textContent = '00:00.00';
+                updateTimerDisplayForType();
                 
                 // Update selector for next participant
                 updateSingleModeParticipantSelector();
@@ -1193,6 +1411,33 @@
                     stopTimer();
                     showStatus('All participants have been timed! Assign names to times.', 'success');
                 }
+            }
+        }
+
+        async function autoFinishCountdown() {
+            // Called when countdown reaches zero
+            await stopTimer();
+            
+            // Assign countdown duration to all participants who don't have a recorded time
+            const assignedNames = stopTimes.map(st => st.assignedTo).filter(name => name !== null);
+            const untimedParticipants = participants.filter(p => !assignedNames.includes(p));
+            
+            untimedParticipants.forEach(participantName => {
+                const stopTime = {
+                    time: countdownDuration,
+                    formattedTime: formatTime(countdownDuration),
+                    assignedTo: timerMode === 'single' ? participantName : null,
+                    order: stopTimes.length + 1
+                };
+                stopTimes.push(stopTime);
+            });
+            
+            updateStopTimesList();
+            
+            if (untimedParticipants.length > 0) {
+                showStatus('Time\'s up! Remaining participants assigned full duration.', 'success');
+            } else {
+                showStatus('Time\'s up!', 'success');
             }
         }
 
@@ -1216,7 +1461,7 @@
             timerStartTime = null;
             stopTimes = [];
             selectedParticipant = null;
-            document.getElementById('timerDisplay').textContent = '00:00.00';
+            updateTimerDisplayForType();
             document.getElementById('stopBtn').disabled = true;
             updateStopTimesList();
             if (timerMode === 'single') {
