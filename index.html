@@ -2511,8 +2511,25 @@
             }
             
             // Sort participants by score (highest first)
-            const sortedParticipants = Object.entries(displayScores)
-                .sort(([, a], [, b]) => b - a);
+            // When there are pending changes, sort by actual scores (not including pending)
+            // Only reorder after points are applied
+            const hasPendingChanges = Object.keys(pendingPointsChanges).length > 0 && 
+                                      Object.values(pendingPointsChanges).some(v => v !== 0);
+            
+            let sortedParticipants;
+            if (hasPendingChanges && !isPreview) {
+                // Sort by actual scores (without pending changes)
+                sortedParticipants = Object.entries(displayScores)
+                    .sort(([nameA], [nameB]) => {
+                        const scoreA = scores[nameA] || 0;
+                        const scoreB = scores[nameB] || 0;
+                        return scoreB - scoreA;
+                    });
+            } else {
+                // Sort by display scores (includes pending changes after applying)
+                sortedParticipants = Object.entries(displayScores)
+                    .sort(([, a], [, b]) => b - a);
+            }
             
             // Find max score for bar scaling (use display scores for proper bar sizing)
             const maxScore = Math.max(...Object.values(displayScores), 1);
