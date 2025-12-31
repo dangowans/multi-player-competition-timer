@@ -479,7 +479,7 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 1000;
+            z-index: 1100;
             text-align: center;
             padding: 15px 30px;
             background: #fff3cd;
@@ -2567,6 +2567,17 @@
             // Add to pending changes instead of immediately applying
             if (!pendingPointsChanges[participantName]) {
                 pendingPointsChanges[participantName] = 0;
+            }
+            
+            // Calculate what the new score would be after applying pending changes
+            const currentScore = scoreboard[participantName] || 0;
+            const newPendingTotal = pendingPointsChanges[participantName] + delta;
+            const finalScore = currentScore + newPendingTotal;
+            
+            // Prevent score from going below 0
+            if (finalScore < 0) {
+                showStatus('Cannot reduce points below zero', 'error', 2000);
+                return;
             }
             
             pendingPointsChanges[participantName] += delta;
