@@ -1019,7 +1019,17 @@
             padding: 15px 20px;
             border-top: 2px solid #d4af37;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        
+        .modal-footer-left {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .modal-footer-right {
+            display: flex;
             gap: 15px;
         }
         
@@ -1182,6 +1192,9 @@
         .secondary-btn {
             background: #95a5a6;
             color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .secondary-btn:hover {
@@ -1358,39 +1371,19 @@
                 <div class="empty-scoreboard">No scores yet. Complete a competition to add scores!</div>
             </div>
             <div class="modal-footer">
-                <button class="add-scores-btn" id="applyPointsBtn" onclick="applyPendingPoints()" style="display: none;">
-                    <i class="fas fa-check"></i> Apply Points
-                </button>
-                <button class="secondary-btn" id="clearPendingBtn" onclick="clearPendingPoints()" style="display: none;">
-                    <i class="fas fa-undo"></i> Clear Pending
-                </button>
-                <button class="danger-btn" onclick="confirmResetScores()">
-                    <i class="fas fa-trash"></i> Reset Scores
-                </button>
-                <button onclick="closeScoreboard()">
-                    <i class="fas fa-times"></i> Close
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Add Scores Preview Modal -->
-    <div id="addScoresModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="addScoresModalTitle"><i class="fas fa-medal"></i> Add Scores</h2>
-                <button class="close-modal" onclick="closeAddScoresModal()">&times;</button>
-            </div>
-            <div class="modal-body" id="addScoresBody">
-                <!-- Dynamic content populated by JS -->
-            </div>
-            <div class="modal-footer">
-                <button class="add-scores-btn" onclick="confirmAddScores()">
-                    <i class="fas fa-check"></i> Confirm
-                </button>
-                <button onclick="closeAddScoresModal()">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
+                <div class="modal-footer-left">
+                    <button class="danger-btn" onclick="confirmResetScores()">
+                        <i class="fas fa-trash"></i> Reset Scores
+                    </button>
+                </div>
+                <div class="modal-footer-right">
+                    <button class="add-scores-btn" id="applyPointsBtn" onclick="applyPendingPoints()" style="display: none;">
+                        <i class="fas fa-check"></i> Apply Points
+                    </button>
+                    <button class="secondary-btn" id="clearPendingBtn" onclick="clearPendingPoints()" style="display: none;">
+                        <i class="fas fa-undo"></i> Clear Pending
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1413,7 +1406,6 @@
         let participantLastPointTime = {}; // Track timestamp of last point for each participant
         let participantsCompletedTurns = []; // Track which participants have completed their countdown-points turns in single mode
         let scoreboard = {}; // Persistent scoreboard: { participantName: totalPoints }
-        let pendingScores = []; // Temporary storage for scores to be added
         let pendingPointsChanges = {}; // Track pending point adjustments: { participantName: delta }
 
         // Local Storage Functions
@@ -2468,11 +2460,11 @@
                 return;
             }
             
-            // Sort participants by score (highest first)
-            const sortedParticipants = Object.entries(displayScores)
+            // Sort participants by actual score (highest first), not including pending changes
+            const sortedParticipants = Object.entries(scores)
                 .sort(([, a], [, b]) => b - a);
             
-            // Find max score for bar scaling
+            // Find max score for bar scaling (use display scores for proper bar sizing)
             const maxScore = Math.max(...Object.values(displayScores), 1);
             
             const list = document.createElement('div');
@@ -2483,10 +2475,11 @@
                 item.className = `scoreboard-item rank-${Math.min(index + 1, 3)}`;
                 item.dataset.participant = name;
                 
-                // Bar graph background
+                // Bar graph background (use display score which includes pending for visual representation)
                 const bar = document.createElement('div');
                 bar.className = 'scoreboard-bar';
-                bar.style.width = `${(points / maxScore) * 100}%`;
+                const displayScore = displayScores[name] || points;
+                bar.style.width = `${(displayScore / maxScore) * 100}%`;
                 item.appendChild(bar);
                 
                 // Rank badge
@@ -2613,6 +2606,8 @@
         
         // Add Scores Modal Functions
         function openAddPlacesModal() {
+            let scoresToAdd = [];
+            
             // Check if we're in countdown-points mode with results
             if (timerType === 'countdown-points' && Object.keys(participantPoints).length > 0 && !isRunning) {
                 // In countdown-points mode, calculate places based on points ranking
@@ -2628,10 +2623,9 @@
                         return aTime - bTime;
                     });
                 
-                pendingScores = sortedParticipants.map((entry, index) => ({
+                scoresToAdd = sortedParticipants.map((entry, index) => ({
                     name: entry[0],
-                    points: sortedParticipants.length - index, // First place gets most points
-                    adjustedPoints: sortedParticipants.length - index
+                    points: sortedParticipants.length - index // First place gets most points
                 }));
             } else {
                 // Regular timed mode: calculate places based on times (fastest = most points)
@@ -2639,125 +2633,45 @@
                     .filter(st => st.assignedTo !== null)
                     .sort((a, b) => a.time - b.time); // Fastest time first
                 
-                pendingScores = sortedTimes.map((st, index) => ({
+                scoresToAdd = sortedTimes.map((st, index) => ({
                     name: st.assignedTo,
-                    points: sortedTimes.length - index, // First place gets most points
-                    adjustedPoints: sortedTimes.length - index
+                    points: sortedTimes.length - index // First place gets most points
                 }));
             }
             
-            renderAddScoresModal('Add Places to Scoreboard');
-            document.getElementById('addScoresModal').classList.add('show');
+            // Add scores directly to pending changes
+            scoresToAdd.forEach(score => {
+                if (!pendingPointsChanges[score.name]) {
+                    pendingPointsChanges[score.name] = 0;
+                }
+                pendingPointsChanges[score.name] += score.points;
+            });
+            
+            showStatus('Competition scores added as pending. Review and apply in scoreboard.', 'success');
+            
+            // Open the scoreboard to show pending changes
+            openScoreboard();
+            
+            // Reset the competition
+            resetTimer();
         }
         
         function openAddPointsModal() {
             // Use points from countdown-points mode
-            pendingScores = Object.entries(participantPoints).map(([name, points]) => ({
+            const scoresToAdd = Object.entries(participantPoints).map(([name, points]) => ({
                 name: name,
-                points: points,
-                adjustedPoints: points
+                points: points
             }));
             
-            renderAddScoresModal('Add Points to Scoreboard');
-            document.getElementById('addScoresModal').classList.add('show');
-        }
-        
-        function renderAddScoresModal(title) {
-            document.getElementById('addScoresModalTitle').innerHTML = `<i class="fas fa-medal"></i> ${title}`;
-            
-            const container = document.getElementById('addScoresBody');
-            
-            if (pendingScores.length === 0) {
-                container.innerHTML = '<div class="empty-scoreboard">No scores to add</div>';
-                return;
-            }
-            
-            // Sort by adjusted points (highest first)
-            const sortedScores = [...pendingScores].sort((a, b) => b.adjustedPoints - a.adjustedPoints);
-            
-            const maxScore = Math.max(...sortedScores.map(s => s.adjustedPoints), 1);
-            
-            const list = document.createElement('div');
-            list.className = 'scoreboard-list';
-            
-            sortedScores.forEach((score, index) => {
-                const item = document.createElement('div');
-                item.className = `scoreboard-item rank-${Math.min(index + 1, 3)}`;
-                
-                // Bar graph background
-                const bar = document.createElement('div');
-                bar.className = 'scoreboard-bar';
-                bar.style.width = `${(score.adjustedPoints / maxScore) * 100}%`;
-                item.appendChild(bar);
-                
-                // Rank badge
-                const rank = document.createElement('div');
-                rank.className = 'scoreboard-rank';
-                rank.textContent = index + 1;
-                item.appendChild(rank);
-                
-                // Participant name
-                const nameEl = document.createElement('div');
-                nameEl.className = 'scoreboard-name';
-                nameEl.textContent = score.name;
-                item.appendChild(nameEl);
-                
-                // Points and controls
-                const pointsContainer = document.createElement('div');
-                pointsContainer.className = 'scoreboard-points-container';
-                
-                const pointsEl = document.createElement('div');
-                pointsEl.className = 'scoreboard-points';
-                pointsEl.textContent = score.adjustedPoints;
-                pointsContainer.appendChild(pointsEl);
-                
-                // Add +/- controls
-                const controls = document.createElement('div');
-                controls.className = 'point-controls';
-                
-                const plusBtn = document.createElement('button');
-                plusBtn.className = 'point-btn plus';
-                plusBtn.innerHTML = '<i class="fas fa-plus"></i>';
-                plusBtn.onclick = () => {
-                    score.adjustedPoints++;
-                    renderAddScoresModal(title);
-                };
-                controls.appendChild(plusBtn);
-                
-                const minusBtn = document.createElement('button');
-                minusBtn.className = 'point-btn minus';
-                minusBtn.innerHTML = '<i class="fas fa-minus"></i>';
-                minusBtn.onclick = () => {
-                    score.adjustedPoints = Math.max(0, score.adjustedPoints - 1);
-                    renderAddScoresModal(title);
-                };
-                controls.appendChild(minusBtn);
-                
-                pointsContainer.appendChild(controls);
-                item.appendChild(pointsContainer);
-                list.appendChild(item);
-            });
-            
-            container.innerHTML = '';
-            container.appendChild(list);
-        }
-        
-        function closeAddScoresModal() {
-            document.getElementById('addScoresModal').classList.remove('show');
-            pendingScores = [];
-        }
-        
-        function confirmAddScores() {
-            // Add pending scores to pending changes instead of directly to scoreboard
-            pendingScores.forEach(score => {
+            // Add scores directly to pending changes
+            scoresToAdd.forEach(score => {
                 if (!pendingPointsChanges[score.name]) {
                     pendingPointsChanges[score.name] = 0;
                 }
-                pendingPointsChanges[score.name] += score.adjustedPoints;
+                pendingPointsChanges[score.name] += score.points;
             });
             
-            closeAddScoresModal();
-            showStatus('Competition scores added as pending. Open scoreboard to review and apply.', 'success');
+            showStatus('Competition scores added as pending. Review and apply in scoreboard.', 'success');
             
             // Open the scoreboard to show pending changes
             openScoreboard();
