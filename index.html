@@ -2598,16 +2598,38 @@
         
         // Add Scores Modal Functions
         function openAddPlacesModal() {
-            // Calculate places based on times (fastest = most points)
-            const sortedTimes = [...stopTimes]
-                .filter(st => st.assignedTo !== null)
-                .sort((a, b) => a.time - b.time); // Fastest time first
-            
-            pendingScores = sortedTimes.map((st, index) => ({
-                name: st.assignedTo,
-                points: sortedTimes.length - index, // First place gets most points
-                adjustedPoints: sortedTimes.length - index
-            }));
+            // Check if we're in countdown-points mode with results
+            if (timerType === 'countdown-points' && Object.keys(participantPoints).length > 0 && !isRunning) {
+                // In countdown-points mode, calculate places based on points ranking
+                const sortedParticipants = Object.entries(participantPoints)
+                    .sort((a, b) => {
+                        // Sort by points descending (most points first)
+                        if (b[1] !== a[1]) {
+                            return b[1] - a[1];
+                        }
+                        // If tied, sort by last point time (earlier wins)
+                        const aTime = participantLastPointTime[a[0]] || Infinity;
+                        const bTime = participantLastPointTime[b[0]] || Infinity;
+                        return aTime - bTime;
+                    });
+                
+                pendingScores = sortedParticipants.map((entry, index) => ({
+                    name: entry[0],
+                    points: sortedParticipants.length - index, // First place gets most points
+                    adjustedPoints: sortedParticipants.length - index
+                }));
+            } else {
+                // Regular timed mode: calculate places based on times (fastest = most points)
+                const sortedTimes = [...stopTimes]
+                    .filter(st => st.assignedTo !== null)
+                    .sort((a, b) => a.time - b.time); // Fastest time first
+                
+                pendingScores = sortedTimes.map((st, index) => ({
+                    name: st.assignedTo,
+                    points: sortedTimes.length - index, // First place gets most points
+                    adjustedPoints: sortedTimes.length - index
+                }));
+            }
             
             renderAddScoresModal('Add Places to Scoreboard');
             document.getElementById('addScoresModal').classList.add('show');
