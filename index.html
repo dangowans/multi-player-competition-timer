@@ -1263,6 +1263,11 @@
                             <div id="participantsList" class="participants-list">
                                 <div class="empty-state">No participants added yet</div>
                             </div>
+                            <div style="display: flex; justify-content: flex-end; margin-top: 15px;">
+                                <button class="danger-btn" onclick="resetAll()" style="padding: 10px 20px;">
+                                    <i class="fas fa-trash-alt"></i> Reset All
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2629,6 +2634,31 @@
                 renderScoreboard(false);
                 updateScoreboardButtons();
                 showStatus('Scoreboard reset successfully', 'success');
+            }
+        }
+        
+        function resetAll() {
+            if (confirm('Are you sure you want to reset all participants and past scores? This cannot be undone.')) {
+                // Reset participants
+                participants = [];
+                saveParticipants();
+                updateParticipantsList();
+                
+                // Reset scoreboard
+                scoreboard = {};
+                pendingPointsChanges = {};
+                saveScoreboard();
+                
+                // Reset timer and related state
+                resetTimer();
+                
+                // Update UI
+                if (timerMode === 'single') {
+                    updateSingleModeParticipantSelector();
+                }
+                updateStartButtonState();
+                
+                showStatus('All participants and scores have been reset', 'success');
             }
         }
         
