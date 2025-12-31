@@ -1349,6 +1349,12 @@
                 <div class="empty-scoreboard">No scores yet. Complete a competition to add scores!</div>
             </div>
             <div class="modal-footer">
+                <button class="add-scores-btn" id="applyPointsBtn" onclick="applyPendingPoints()" style="display: none;">
+                    <i class="fas fa-check"></i> Apply Points
+                </button>
+                <button id="clearPendingBtn" onclick="clearPendingPoints()" style="display: none;">
+                    <i class="fas fa-undo"></i> Clear Pending
+                </button>
                 <button class="danger-btn" onclick="confirmResetScores()">
                     <i class="fas fa-trash"></i> Reset Scores
                 </button>
@@ -1399,6 +1405,7 @@
         let participantsCompletedTurns = []; // Track which participants have completed their countdown-points turns in single mode
         let scoreboard = {}; // Persistent scoreboard: { participantName: totalPoints }
         let pendingScores = []; // Temporary storage for scores to be added
+        let pendingPointsChanges = {}; // Track pending point adjustments: { participantName: delta }
 
         // Local Storage Functions
         function saveParticipants() {
@@ -2371,11 +2378,58 @@
         // Scoreboard Modal Functions
         function openScoreboard() {
             renderScoreboard(false);
+            updateScoreboardButtons();
             document.getElementById('scoreboardModal').classList.add('show');
         }
         
         function closeScoreboard() {
             document.getElementById('scoreboardModal').classList.remove('show');
+        }
+        
+        function updateScoreboardButtons() {
+            const hasPending = Object.keys(pendingPointsChanges).length > 0 && 
+                                Object.values(pendingPointsChanges).some(v => v !== 0);
+            
+            document.getElementById('applyPointsBtn').style.display = hasPending ? 'inline-flex' : 'none';
+            document.getElementById('clearPendingBtn').style.display = hasPending ? 'inline-flex' : 'none';
+        }
+        
+        function applyPendingPoints() {
+            if (Object.keys(pendingPointsChanges).length === 0) return;
+            
+            // Apply all pending changes with animations
+            Object.entries(pendingPointsChanges).forEach(([name, delta]) => {
+                if (delta === 0) return;
+                
+                if (!scoreboard[name]) {
+                    scoreboard[name] = 0;
+                }
+                
+                const oldScore = scoreboard[name];
+                const newScore = Math.max(0, oldScore + delta);
+                scoreboard[name] = newScore;
+                
+                // Animate the change
+                animateScoreChange(name, oldScore, newScore);
+            });
+            
+            // Clear pending changes
+            pendingPointsChanges = {};
+            
+            // Save scoreboard
+            saveScoreboard();
+            
+            // Update buttons
+            updateScoreboardButtons();
+            
+            showStatus('Points applied successfully!', 'success');
+        }
+        
+        function clearPendingPoints() {
+            pendingPointsChanges = {};
+            renderScoreboard(false);
+            updateScoreboardButtons();
+            showStatus('Pending changes cleared', 'success');
         }
         
         function renderScoreboard(isPreview = false, previewScores = null) {
@@ -2384,17 +2438,33 @@
             // Use preview scores if provided, otherwise use actual scoreboard
             const scores = previewScores || scoreboard;
             
-            if (Object.keys(scores).length === 0) {
+            // Calculate display scores (current + pending)
+            const displayScores = {};
+            Object.keys(scores).forEach(name => {
+                displayScores[name] = scores[name];
+            });
+            
+            // Add pending changes to display scores
+            if (!isPreview) {
+                Object.keys(pendingPointsChanges).forEach(name => {
+                    if (!displayScores[name]) {
+                        displayScores[name] = 0;
+                    }
+                    displayScores[name] = Math.max(0, displayScores[name] + pendingPointsChanges[name]);
+                });
+            }
+            
+            if (Object.keys(displayScores).length === 0) {
                 container.innerHTML = '<div class="empty-scoreboard">No scores yet. Complete a competition to add scores!</div>';
                 return;
             }
             
             // Sort participants by score (highest first)
-            const sortedParticipants = Object.entries(scores)
+            const sortedParticipants = Object.entries(displayScores)
                 .sort(([, a], [, b]) => b - a);
             
             // Find max score for bar scaling
-            const maxScore = Math.max(...Object.values(scores), 1);
+            const maxScore = Math.max(...Object.values(displayScores), 1);
             
             const list = document.createElement('div');
             list.className = 'scoreboard-list';
@@ -2428,7 +2498,17 @@
                 
                 const pointsEl = document.createElement('div');
                 pointsEl.className = 'scoreboard-points';
-                pointsEl.textContent = points;
+                
+                // Show pending changes as separate text
+                if (!isPreview && pendingPointsChanges[name]) {
+                    const currentScore = scoreboard[name] || 0;
+                    const pendingDelta = pendingPointsChanges[name];
+                    const sign = pendingDelta > 0 ? '+' : '';
+                    pointsEl.innerHTML = `${currentScore} <span style="color: #ffa500; font-size: 0.8em;">(${sign}${pendingDelta})</span>`;
+                } else {
+                    pointsEl.textContent = points;
+                }
+                
                 pointsContainer.appendChild(pointsEl);
                 
                 // Add +/- controls only if not in preview mode
@@ -2460,16 +2540,15 @@
         }
         
         function adjustScore(participantName, delta) {
-            if (!scoreboard[participantName]) {
-                scoreboard[participantName] = 0;
+            // Add to pending changes instead of immediately applying
+            if (!pendingPointsChanges[participantName]) {
+                pendingPointsChanges[participantName] = 0;
             }
             
-            const oldScore = scoreboard[participantName];
-            const newScore = Math.max(0, oldScore + delta);
-            scoreboard[participantName] = newScore;
+            pendingPointsChanges[participantName] += delta;
             
-            saveScoreboard();
-            animateScoreChange(participantName, oldScore, newScore);
+            // Re-render to show pending changes
+            renderScoreboard(false);
             
             // Play beep sound
             playBeep();
@@ -2632,17 +2711,19 @@
         }
         
         function confirmAddScores() {
-            // Add pending scores to the scoreboard
+            // Add pending scores to pending changes instead of directly to scoreboard
             pendingScores.forEach(score => {
-                if (!scoreboard[score.name]) {
-                    scoreboard[score.name] = 0;
+                if (!pendingPointsChanges[score.name]) {
+                    pendingPointsChanges[score.name] = 0;
                 }
-                scoreboard[score.name] += score.adjustedPoints;
+                pendingPointsChanges[score.name] += score.adjustedPoints;
             });
             
-            saveScoreboard();
             closeAddScoresModal();
-            showStatus('Scores added successfully!', 'success');
+            showStatus('Competition scores added as pending. Open scoreboard to review and apply.', 'success');
+            
+            // Open the scoreboard to show pending changes
+            openScoreboard();
             
             // Reset the competition
             resetTimer();
