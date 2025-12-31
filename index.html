@@ -1540,6 +1540,11 @@
             updateParticipantsList();
             updateStopTimesList();
             updateStartButtonState();
+            
+            // Show toast notification if there are saved scores
+            if (Object.keys(scoreboard).length > 0) {
+                showStatus('Scoreboard has saved scores from previous sessions', 'success', 5000);
+            }
         }
 
         // Collapsible Section Toggle
