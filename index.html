@@ -767,10 +767,47 @@
                 font-size: 14px;
                 flex: 1;
                 min-width: 0;
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            .mode-btn i, .type-btn i {
+                font-size: 1.2em;
             }
             
             .timer-mode-selector, .timer-type-selector {
                 flex-wrap: wrap;
+            }
+            
+            /* Timer control buttons mobile optimization */
+            .timer-controls button {
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            .timer-controls button i {
+                font-size: 1.2em;
+            }
+            
+            /* Add scores buttons mobile optimization */
+            .add-scores-btn {
+                flex-direction: column;
+                gap: 4px;
+                padding: 12px 20px;
+            }
+            
+            .add-scores-btn i {
+                font-size: 1.2em;
+            }
+            
+            /* Modal footer buttons mobile optimization */
+            .danger-btn, .secondary-btn {
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            .danger-btn i, .secondary-btn i {
+                font-size: 1.2em;
             }
         }
 
