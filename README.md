@@ -1,5 +1,9 @@
 # Multi-Player Competition Timer
 
+<p align="center">
+  <img src="icon.png" alt="Multi-Player Competition Timer Icon" width="200"/>
+</p>
+
 A web-based timer application designed for tracking multiple competitors in games, races, or other competitive events. Perfect for game nights, competitions, or any scenario where you need to time multiple participants.
 
 ## Features
@@ -14,6 +18,19 @@ A web-based timer application designed for tracking multiple competitors in game
   - **Countdown with Points**: Count down while tracking points for each participant (click participants to add points)
 
 - **Participant Management**: Add, remove, and track unlimited participants
+
+- **Scoreboard System**: 
+  - Track cumulative scores across multiple competitions
+  - Visual bar graph representation of scores
+  - Persistent storage of scores in local browser storage
+  - Add scores based on competition placement or countdown-points mode
+  - Adjust scores with plus/minus buttons
+  - Animated score changes and position updates
+  - Reset scores with confirmation prompt
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/8e92489f-ac79-49bb-a969-3de9b4205519" alt="Scoreboard Modal" width="600"/>
+</p>
 
 - **Large Display**: Optimized for viewing on TVs and large screens with high-contrast design
 
@@ -91,8 +108,28 @@ Perfect for scoring games, trivia competitions, or any activity where you want t
 - **Start Button**: Begin timing
 - **Stop Button**: Record the current time (in Stopwatch/Countdown modes) or finish timing the current participant (in Single Mode). Not used in Countdown with Points mode.
 - **Reset Button**: Clear all recorded times/points and reset the timer
+- **Scoreboard Button**: View the persistent scoreboard with cumulative scores
 - **Timer Display**: Click/tap the timer display to start or stop (same as the buttons, except in Countdown with Points mode)
 - **Participant Names**: In Countdown with Points mode, click participant names to add points (with beep sound)
+
+### Scoreboard
+
+The scoreboard tracks cumulative points across multiple competitions:
+
+1. **Viewing the Scoreboard**: Click the "Scoreboard" button (blue button on the right) to view current standings
+2. **Adding Scores After Competition**: 
+   - When all participants have been timed, buttons appear to add scores to the scoreboard
+   - "Add Places to Scoreboard" - Awards points based on finishing position (1st place gets the most points)
+   - "Add Points to Scoreboard" - Awards points based on the points earned in Countdown with Points mode
+3. **Adjusting Scores**: Use the plus/minus buttons next to each participant in the preview modal to apply bonuses or deductions before confirming
+4. **Managing Scores**: 
+   - Scores are automatically saved to browser local storage
+   - Use plus/minus buttons in the scoreboard modal to manually adjust scores
+   - Click "Reset Scores" to clear all scores (requires confirmation)
+5. **Visual Features**:
+   - Bar graphs show relative scores
+   - Animated score changes and position movements
+   - Gold, silver, and bronze styling for top 3 positions
 
 ## Landscape/TV Optimization
 
@@ -105,7 +142,7 @@ When viewed in landscape orientation on screens 768px or wider:
 ## Technical Details
 
 - Pure HTML/CSS/JavaScript - no build process required
-- Uses localStorage to persist participant data
+- Uses localStorage to persist participant data and scoreboard scores
 - Supports Web Wake Lock API to prevent screen dimming during active timing
 - Web Audio API for beep sounds when adding points
 - Progressive Web App (PWA) ready with manifest and icons
