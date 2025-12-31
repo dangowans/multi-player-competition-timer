@@ -1094,7 +1094,7 @@
         .scoreboard-name {
             flex: 1;
             color: #d4af37;
-            font-size: 1.5em;
+            font-size: 2em;
             font-weight: 600;
             z-index: 1;
             word-break: break-word;
@@ -1177,6 +1177,15 @@
         
         .danger-btn:hover {
             background: #c0392b;
+        }
+        
+        .secondary-btn {
+            background: #95a5a6;
+            color: #ffffff;
+        }
+        
+        .secondary-btn:hover {
+            background: #7f8c8d;
         }
         
         .add-scores-section {
@@ -1352,7 +1361,7 @@
                 <button class="add-scores-btn" id="applyPointsBtn" onclick="applyPendingPoints()" style="display: none;">
                     <i class="fas fa-check"></i> Apply Points
                 </button>
-                <button id="clearPendingBtn" onclick="clearPendingPoints()" style="display: none;">
+                <button class="secondary-btn" id="clearPendingBtn" onclick="clearPendingPoints()" style="display: none;">
                     <i class="fas fa-undo"></i> Clear Pending
                 </button>
                 <button class="danger-btn" onclick="confirmResetScores()">
@@ -2549,6 +2558,7 @@
             
             // Re-render to show pending changes
             renderScoreboard(false);
+            updateScoreboardButtons();
             
             // Play beep sound
             playBeep();
@@ -2580,7 +2590,10 @@
                 } else {
                     pointsEl.classList.remove('animating');
                     // Re-render to update positions and bars
-                    setTimeout(() => renderScoreboard(false), 100);
+                    setTimeout(() => {
+                        renderScoreboard(false);
+                        updateScoreboardButtons();
+                    }, 100);
                 }
             };
             
@@ -2590,8 +2603,10 @@
         function confirmResetScores() {
             if (confirm('Are you sure you want to reset all scores? This cannot be undone.')) {
                 scoreboard = {};
+                pendingPointsChanges = {};
                 saveScoreboard();
                 renderScoreboard(false);
+                updateScoreboardButtons();
                 showStatus('Scoreboard reset successfully', 'success');
             }
         }
