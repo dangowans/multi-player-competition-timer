@@ -2520,14 +2520,27 @@
             if (hasPendingChanges && !isPreview) {
                 // Sort by actual scores (without pending changes)
                 // This maintains the current order while showing pending changes
-                // Note: We iterate over displayScores (which includes all participants)
-                // but sort by scores (which only includes participants with actual scores)
+                // When scores are equal, maintain the original order from participants array
+                const participantIndices = {};
+                participants.forEach((name, index) => {
+                    participantIndices[name] = index;
+                });
+                
                 sortedParticipants = Object.entries(displayScores)
                     .sort(([nameA], [nameB]) => {
                         // Use actual scores from scoreboard, default to 0 if not present
                         const scoreA = scores[nameA] !== undefined ? scores[nameA] : 0;
                         const scoreB = scores[nameB] !== undefined ? scores[nameB] : 0;
-                        return scoreB - scoreA;
+                        
+                        // If scores are different, sort by score (highest first)
+                        if (scoreB !== scoreA) {
+                            return scoreB - scoreA;
+                        }
+                        
+                        // If scores are equal, maintain original participant order
+                        const indexA = participantIndices[nameA] !== undefined ? participantIndices[nameA] : Infinity;
+                        const indexB = participantIndices[nameB] !== undefined ? participantIndices[nameB] : Infinity;
+                        return indexA - indexB;
                     });
             } else {
                 // Sort by display scores (includes pending changes after applying)
