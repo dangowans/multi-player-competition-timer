@@ -2648,6 +2648,8 @@
                 scoreboard = {};
                 pendingPointsChanges = {};
                 saveScoreboard();
+                renderScoreboard(false);
+                updateScoreboardButtons();
                 
                 // Reset timer and related state
                 resetTimer();
