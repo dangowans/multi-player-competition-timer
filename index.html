@@ -296,7 +296,18 @@
         .timer-controls {
             display: flex;
             gap: 15px;
-            justify-content: center;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .timer-controls-left {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .timer-controls-right {
+            display: flex;
+            gap: 15px;
         }
 
         .timer-controls button {
@@ -336,6 +347,15 @@
 
         .reset-btn:hover {
             background: #6c7a7b;
+        }
+        
+        .scoreboard-btn {
+            background: #3498db;
+            color: #ffffff;
+        }
+        
+        .scoreboard-btn:hover {
+            background: #2980b9;
         }
 
         /* Reset button container */
@@ -903,6 +923,297 @@
                 font-size: 3em;
             }
         }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal.show {
+            display: block;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            margin: 2% auto;
+            padding: 0;
+            border: 2px solid #d4af37;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-header {
+            background: #0f0f1e;
+            padding: 20px;
+            border-bottom: 2px solid #d4af37;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            color: #d4af37;
+            font-size: 1.8em;
+        }
+        
+        .close-modal {
+            color: #d4af37;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .close-modal:hover {
+            color: #c9a23e;
+            transform: rotate(90deg);
+        }
+        
+        .modal-body {
+            padding: 20px;
+            max-height: calc(90vh - 180px);
+            overflow-y: auto;
+        }
+        
+        .modal-footer {
+            background: #0f0f1e;
+            padding: 15px 20px;
+            border-top: 2px solid #d4af37;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .scoreboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .scoreboard-item {
+            background: #0a0a0a;
+            border: 2px solid #2a2a3e;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .scoreboard-item.rank-1 {
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        .scoreboard-item.rank-2 {
+            border-color: #c0c0c0;
+            box-shadow: 0 0 15px rgba(192, 192, 192, 0.3);
+        }
+        
+        .scoreboard-item.rank-3 {
+            border-color: #cd7f32;
+            box-shadow: 0 0 15px rgba(205, 127, 50, 0.3);
+        }
+        
+        .scoreboard-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.3) 0%, rgba(212, 175, 55, 0.1) 100%);
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 0;
+        }
+        
+        .scoreboard-rank {
+            background: #d4af37;
+            color: #0a0a0a;
+            padding: 8px 15px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 1.2em;
+            min-width: 45px;
+            text-align: center;
+            z-index: 1;
+        }
+        
+        .scoreboard-item.rank-1 .scoreboard-rank {
+            background: #ffd700;
+        }
+        
+        .scoreboard-item.rank-2 .scoreboard-rank {
+            background: #c0c0c0;
+        }
+        
+        .scoreboard-item.rank-3 .scoreboard-rank {
+            background: #cd7f32;
+        }
+        
+        .scoreboard-name {
+            flex: 1;
+            color: #d4af37;
+            font-size: 1.5em;
+            font-weight: 600;
+            z-index: 1;
+            word-break: break-word;
+        }
+        
+        .scoreboard-points-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1;
+        }
+        
+        .scoreboard-points {
+            color: #d4af37;
+            font-size: 2em;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            min-width: 60px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .scoreboard-points.animating {
+            transform: scale(1.3);
+            color: #2ecc71;
+        }
+        
+        .point-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .point-btn {
+            background: #d4af37;
+            color: #0a0a0a;
+            border: none;
+            border-radius: 5px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.2s;
+            padding: 0;
+        }
+        
+        .point-btn:hover {
+            background: #c9a23e;
+            transform: scale(1.1);
+        }
+        
+        .point-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .point-btn.plus {
+            background: #2ecc71;
+        }
+        
+        .point-btn.plus:hover {
+            background: #27ae60;
+        }
+        
+        .point-btn.minus {
+            background: #e74c3c;
+        }
+        
+        .point-btn.minus:hover {
+            background: #c0392b;
+        }
+        
+        .danger-btn {
+            background: #e74c3c;
+            color: #ffffff;
+        }
+        
+        .danger-btn:hover {
+            background: #c0392b;
+        }
+        
+        .add-scores-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #0f0f1e;
+            border-radius: 10px;
+            border: 2px solid #d4af37;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .add-scores-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .add-scores-btn {
+            background: #2ecc71;
+            color: #ffffff;
+            padding: 15px 30px;
+            font-size: 1.1em;
+        }
+        
+        .add-scores-btn:hover {
+            background: #27ae60;
+        }
+        
+        .empty-scoreboard {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 40px;
+            font-size: 1.2em;
+        }
     </style>
 </head>
 <body>
@@ -987,12 +1298,19 @@
                     <div class="time" id="timerDisplay">00:00.00</div>
                 </div>
                 <div class="timer-controls">
-                    <button id="startBtn" class="start-btn" onclick="startTimer()">
-                        <i class="fas fa-play"></i> Start
-                    </button>
-                    <button id="stopBtn" class="stop-btn" onclick="recordStopTime()" disabled>
-                        <i class="fas fa-stop"></i> Stop
-                    </button>
+                    <div class="timer-controls-left">
+                        <button id="startBtn" class="start-btn" onclick="startTimer()">
+                            <i class="fas fa-play"></i> Start
+                        </button>
+                        <button id="stopBtn" class="stop-btn" onclick="recordStopTime()" disabled>
+                            <i class="fas fa-stop"></i> Stop
+                        </button>
+                    </div>
+                    <div class="timer-controls-right">
+                        <button id="scoreboardBtn" class="scoreboard-btn" onclick="openScoreboard()">
+                            <i class="fas fa-trophy"></i> Scoreboard
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1001,11 +1319,65 @@
                 <div id="stopTimesList" class="stop-times-list">
                     <div class="empty-state">No times recorded yet</div>
                 </div>
+                
+                <!-- Add scores buttons section -->
+                <div id="addScoresSection" class="add-scores-section" style="display: none;">
+                    <div class="add-scores-buttons">
+                        <button class="add-scores-btn" onclick="openAddPlacesModal()">
+                            <i class="fas fa-medal"></i> Add Places to Scoreboard
+                        </button>
+                        <button id="addPointsBtn" class="add-scores-btn" onclick="openAddPointsModal()" style="display: none;">
+                            <i class="fas fa-star"></i> Add Points to Scoreboard
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         
         <!-- Toast notification for status messages -->
         <div id="statusMessage" class="status-message hidden"></div>
+    </div>
+    
+    <!-- Scoreboard Modal -->
+    <div id="scoreboardModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-trophy"></i> Scoreboard</h2>
+                <button class="close-modal" onclick="closeScoreboard()">&times;</button>
+            </div>
+            <div class="modal-body" id="scoreboardBody">
+                <div class="empty-scoreboard">No scores yet. Complete a competition to add scores!</div>
+            </div>
+            <div class="modal-footer">
+                <button class="danger-btn" onclick="confirmResetScores()">
+                    <i class="fas fa-trash"></i> Reset Scores
+                </button>
+                <button onclick="closeScoreboard()">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Scores Preview Modal -->
+    <div id="addScoresModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="addScoresModalTitle"><i class="fas fa-medal"></i> Add Scores</h2>
+                <button class="close-modal" onclick="closeAddScoresModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="addScoresBody">
+                <!-- Dynamic content populated by JS -->
+            </div>
+            <div class="modal-footer">
+                <button class="add-scores-btn" onclick="confirmAddScores()">
+                    <i class="fas fa-check"></i> Confirm
+                </button>
+                <button onclick="closeAddScoresModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1025,6 +1397,8 @@
         let participantPoints = {}; // Track points for each participant in countdown-points mode
         let participantLastPointTime = {}; // Track timestamp of last point for each participant
         let participantsCompletedTurns = []; // Track which participants have completed their countdown-points turns in single mode
+        let scoreboard = {}; // Persistent scoreboard: { participantName: totalPoints }
+        let pendingScores = []; // Temporary storage for scores to be added
 
         // Local Storage Functions
         function saveParticipants() {
@@ -1039,6 +1413,22 @@
                 } catch (e) {
                     console.error('Failed to load participants from storage', e);
                     participants = [];
+                }
+            }
+        }
+        
+        function saveScoreboard() {
+            localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
+        }
+        
+        function loadScoreboard() {
+            const saved = localStorage.getItem('scoreboard');
+            if (saved) {
+                try {
+                    scoreboard = JSON.parse(saved);
+                } catch (e) {
+                    console.error('Failed to load scoreboard from storage', e);
+                    scoreboard = {};
                 }
             }
         }
@@ -1138,6 +1528,7 @@
         // Initialize
         function init() {
             loadParticipants();
+            loadScoreboard();
             updateParticipantsList();
             updateStopTimesList();
             updateStartButtonState();
@@ -1516,6 +1907,7 @@
                 // Stop the countdown early
                 stopTimer();
                 updateStopTimesList(); // Update to show sorted results
+                updateAddScoresSection(); // Show add scores buttons
                 showStatus("Countdown stopped early! Final scores displayed.", 'success');
                 return;
             }
@@ -1555,6 +1947,7 @@
                 // Check if all participants have times
                 if (stopTimes.length >= participants.length) {
                     showStatus('All participants have been timed!', 'success');
+                    updateAddScoresSection(); // Show add scores buttons
                 } else {
                     const remaining = participants.length - stopTimes.length;
                     showStatus(`Time recorded for ${completedParticipant}! ${remaining} participant(s) remaining.`, 'success');
@@ -1586,6 +1979,7 @@
                     if (participantsCompletedTurns.length >= participants.length) {
                         // All participants have had turns, show final results
                         updateStopTimesList(); // Update to show sorted results
+                        updateAddScoresSection(); // Show add scores buttons
                         showStatus("All participants completed! Final scores displayed.", 'success');
                     } else {
                         // More participants to go
@@ -1598,6 +1992,7 @@
                 
                 // In together mode, just stop the timer and show final scores
                 updateStopTimesList(); // Update to show sorted results
+                updateAddScoresSection(); // Show add scores buttons
                 showStatus("Time's up! Final scores displayed.", 'success');
                 return;
             }
@@ -1640,6 +2035,7 @@
                     
                     if (stopTimes.length >= participants.length) {
                         showStatus('Time\'s up! All participants have been timed!', 'success');
+                        updateAddScoresSection(); // Show add scores buttons
                     } else {
                         showStatus(`Time\'s up for ${selectedParticipant}!`, 'success');
                     }
@@ -1675,6 +2071,7 @@
             updateTimerDisplayForType();
             document.getElementById('stopBtn').disabled = true;
             updateStopTimesList();
+            updateAddScoresSection(); // Hide add scores section
             if (timerMode === 'single') {
                 updateSingleModeParticipantSelector();
             }
@@ -1943,7 +2340,312 @@
             const allAssigned = stopTimes.every(st => st.assignedTo !== null);
             if (allAssigned && stopTimes.length === participants.length) {
                 showStatus('All participants have been assigned times!', 'success');
+                updateAddScoresSection();
             }
+        }
+        
+        // Update Add Scores Section visibility
+        function updateAddScoresSection() {
+            const section = document.getElementById('addScoresSection');
+            const addPointsBtn = document.getElementById('addPointsBtn');
+            
+            // Show section if all times are assigned or if countdown-points mode is complete
+            const allAssigned = stopTimes.length > 0 && stopTimes.every(st => st.assignedTo !== null) && stopTimes.length === participants.length;
+            const countdownPointsComplete = timerType === 'countdown-points' && !isRunning && Object.keys(participantPoints).length > 0 && 
+                (timerMode === 'together' || participantsCompletedTurns.length >= participants.length);
+            
+            if (allAssigned || countdownPointsComplete) {
+                section.style.display = 'block';
+                
+                // Show "Add Points" button only for countdown-points mode
+                if (countdownPointsComplete) {
+                    addPointsBtn.style.display = 'inline-flex';
+                } else {
+                    addPointsBtn.style.display = 'none';
+                }
+            } else {
+                section.style.display = 'none';
+            }
+        }
+        
+        // Scoreboard Modal Functions
+        function openScoreboard() {
+            renderScoreboard(false);
+            document.getElementById('scoreboardModal').classList.add('show');
+        }
+        
+        function closeScoreboard() {
+            document.getElementById('scoreboardModal').classList.remove('show');
+        }
+        
+        function renderScoreboard(isPreview = false, previewScores = null) {
+            const container = document.getElementById('scoreboardBody');
+            
+            // Use preview scores if provided, otherwise use actual scoreboard
+            const scores = previewScores || scoreboard;
+            
+            if (Object.keys(scores).length === 0) {
+                container.innerHTML = '<div class="empty-scoreboard">No scores yet. Complete a competition to add scores!</div>';
+                return;
+            }
+            
+            // Sort participants by score (highest first)
+            const sortedParticipants = Object.entries(scores)
+                .sort(([, a], [, b]) => b - a);
+            
+            // Find max score for bar scaling
+            const maxScore = Math.max(...Object.values(scores), 1);
+            
+            const list = document.createElement('div');
+            list.className = 'scoreboard-list';
+            
+            sortedParticipants.forEach(([name, points], index) => {
+                const item = document.createElement('div');
+                item.className = `scoreboard-item rank-${Math.min(index + 1, 3)}`;
+                item.dataset.participant = name;
+                
+                // Bar graph background
+                const bar = document.createElement('div');
+                bar.className = 'scoreboard-bar';
+                bar.style.width = `${(points / maxScore) * 100}%`;
+                item.appendChild(bar);
+                
+                // Rank badge
+                const rank = document.createElement('div');
+                rank.className = 'scoreboard-rank';
+                rank.textContent = index + 1;
+                item.appendChild(rank);
+                
+                // Participant name
+                const nameEl = document.createElement('div');
+                nameEl.className = 'scoreboard-name';
+                nameEl.textContent = name;
+                item.appendChild(nameEl);
+                
+                // Points and controls
+                const pointsContainer = document.createElement('div');
+                pointsContainer.className = 'scoreboard-points-container';
+                
+                const pointsEl = document.createElement('div');
+                pointsEl.className = 'scoreboard-points';
+                pointsEl.textContent = points;
+                pointsContainer.appendChild(pointsEl);
+                
+                // Add +/- controls only if not in preview mode
+                if (!isPreview) {
+                    const controls = document.createElement('div');
+                    controls.className = 'point-controls';
+                    
+                    const plusBtn = document.createElement('button');
+                    plusBtn.className = 'point-btn plus';
+                    plusBtn.innerHTML = '<i class="fas fa-plus"></i>';
+                    plusBtn.onclick = () => adjustScore(name, 1);
+                    controls.appendChild(plusBtn);
+                    
+                    const minusBtn = document.createElement('button');
+                    minusBtn.className = 'point-btn minus';
+                    minusBtn.innerHTML = '<i class="fas fa-minus"></i>';
+                    minusBtn.onclick = () => adjustScore(name, -1);
+                    controls.appendChild(minusBtn);
+                    
+                    pointsContainer.appendChild(controls);
+                }
+                
+                item.appendChild(pointsContainer);
+                list.appendChild(item);
+            });
+            
+            container.innerHTML = '';
+            container.appendChild(list);
+        }
+        
+        function adjustScore(participantName, delta) {
+            if (!scoreboard[participantName]) {
+                scoreboard[participantName] = 0;
+            }
+            
+            const oldScore = scoreboard[participantName];
+            const newScore = Math.max(0, oldScore + delta);
+            scoreboard[participantName] = newScore;
+            
+            saveScoreboard();
+            animateScoreChange(participantName, oldScore, newScore);
+            
+            // Play beep sound
+            playBeep();
+        }
+        
+        function animateScoreChange(participantName, oldScore, newScore) {
+            const item = document.querySelector(`.scoreboard-item[data-participant="${participantName}"]`);
+            if (!item) return;
+            
+            const pointsEl = item.querySelector('.scoreboard-points');
+            const bar = item.querySelector('.scoreboard-bar');
+            
+            // Animate the points number
+            pointsEl.classList.add('animating');
+            
+            // Animate from old to new value
+            const duration = 500;
+            const startTime = Date.now();
+            
+            const animate = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                const currentValue = Math.round(oldScore + (newScore - oldScore) * progress);
+                pointsEl.textContent = currentValue;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    pointsEl.classList.remove('animating');
+                    // Re-render to update positions and bars
+                    setTimeout(() => renderScoreboard(false), 100);
+                }
+            };
+            
+            animate();
+        }
+        
+        function confirmResetScores() {
+            if (confirm('Are you sure you want to reset all scores? This cannot be undone.')) {
+                scoreboard = {};
+                saveScoreboard();
+                renderScoreboard(false);
+                showStatus('Scoreboard reset successfully', 'success');
+            }
+        }
+        
+        // Add Scores Modal Functions
+        function openAddPlacesModal() {
+            // Calculate places based on times (fastest = most points)
+            const sortedTimes = [...stopTimes]
+                .filter(st => st.assignedTo !== null)
+                .sort((a, b) => a.time - b.time); // Fastest time first
+            
+            pendingScores = sortedTimes.map((st, index) => ({
+                name: st.assignedTo,
+                points: sortedTimes.length - index, // First place gets most points
+                adjustedPoints: sortedTimes.length - index
+            }));
+            
+            renderAddScoresModal('Add Places to Scoreboard');
+            document.getElementById('addScoresModal').classList.add('show');
+        }
+        
+        function openAddPointsModal() {
+            // Use points from countdown-points mode
+            pendingScores = Object.entries(participantPoints).map(([name, points]) => ({
+                name: name,
+                points: points,
+                adjustedPoints: points
+            }));
+            
+            renderAddScoresModal('Add Points to Scoreboard');
+            document.getElementById('addScoresModal').classList.add('show');
+        }
+        
+        function renderAddScoresModal(title) {
+            document.getElementById('addScoresModalTitle').innerHTML = `<i class="fas fa-medal"></i> ${title}`;
+            
+            const container = document.getElementById('addScoresBody');
+            
+            if (pendingScores.length === 0) {
+                container.innerHTML = '<div class="empty-scoreboard">No scores to add</div>';
+                return;
+            }
+            
+            // Sort by adjusted points (highest first)
+            const sortedScores = [...pendingScores].sort((a, b) => b.adjustedPoints - a.adjustedPoints);
+            
+            const maxScore = Math.max(...sortedScores.map(s => s.adjustedPoints), 1);
+            
+            const list = document.createElement('div');
+            list.className = 'scoreboard-list';
+            
+            sortedScores.forEach((score, index) => {
+                const item = document.createElement('div');
+                item.className = `scoreboard-item rank-${Math.min(index + 1, 3)}`;
+                
+                // Bar graph background
+                const bar = document.createElement('div');
+                bar.className = 'scoreboard-bar';
+                bar.style.width = `${(score.adjustedPoints / maxScore) * 100}%`;
+                item.appendChild(bar);
+                
+                // Rank badge
+                const rank = document.createElement('div');
+                rank.className = 'scoreboard-rank';
+                rank.textContent = index + 1;
+                item.appendChild(rank);
+                
+                // Participant name
+                const nameEl = document.createElement('div');
+                nameEl.className = 'scoreboard-name';
+                nameEl.textContent = score.name;
+                item.appendChild(nameEl);
+                
+                // Points and controls
+                const pointsContainer = document.createElement('div');
+                pointsContainer.className = 'scoreboard-points-container';
+                
+                const pointsEl = document.createElement('div');
+                pointsEl.className = 'scoreboard-points';
+                pointsEl.textContent = score.adjustedPoints;
+                pointsContainer.appendChild(pointsEl);
+                
+                // Add +/- controls
+                const controls = document.createElement('div');
+                controls.className = 'point-controls';
+                
+                const plusBtn = document.createElement('button');
+                plusBtn.className = 'point-btn plus';
+                plusBtn.innerHTML = '<i class="fas fa-plus"></i>';
+                plusBtn.onclick = () => {
+                    score.adjustedPoints++;
+                    renderAddScoresModal(title);
+                };
+                controls.appendChild(plusBtn);
+                
+                const minusBtn = document.createElement('button');
+                minusBtn.className = 'point-btn minus';
+                minusBtn.innerHTML = '<i class="fas fa-minus"></i>';
+                minusBtn.onclick = () => {
+                    score.adjustedPoints = Math.max(0, score.adjustedPoints - 1);
+                    renderAddScoresModal(title);
+                };
+                controls.appendChild(minusBtn);
+                
+                pointsContainer.appendChild(controls);
+                item.appendChild(pointsContainer);
+                list.appendChild(item);
+            });
+            
+            container.innerHTML = '';
+            container.appendChild(list);
+        }
+        
+        function closeAddScoresModal() {
+            document.getElementById('addScoresModal').classList.remove('show');
+            pendingScores = [];
+        }
+        
+        function confirmAddScores() {
+            // Add pending scores to the scoreboard
+            pendingScores.forEach(score => {
+                if (!scoreboard[score.name]) {
+                    scoreboard[score.name] = 0;
+                }
+                scoreboard[score.name] += score.adjustedPoints;
+            });
+            
+            saveScoreboard();
+            closeAddScoresModal();
+            showStatus('Scores added successfully!', 'success');
+            
+            // Reset the competition
+            resetTimer();
         }
 
         // Status Messages
