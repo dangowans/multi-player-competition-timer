@@ -2455,10 +2455,13 @@
                 });
             }
             
-            // If no scores exist but we have participants, initialize all participants with 0 points
-            if (Object.keys(displayScores).length === 0 && participants.length > 0) {
+            // If no scores exist (in the original scoreboard) but we have participants, 
+            // initialize all participants with 0 points
+            if (Object.keys(scores).length === 0 && participants.length > 0) {
                 participants.forEach(name => {
-                    displayScores[name] = 0;
+                    if (!displayScores[name]) {
+                        displayScores[name] = 0;
+                    }
                 });
             }
             
