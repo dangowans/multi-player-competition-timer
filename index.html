@@ -2497,30 +2497,21 @@
                 });
             }
             
-            // If no scores exist (in the original scoreboard or preview) but we have participants, 
-            // initialize all participants with 0 points. We check 'scores' (not displayScores) 
-            // because pending changes have already been added to displayScores above.
-            if (Object.keys(scores).length === 0 && participants.length > 0) {
-                participants.forEach(name => {
-                    if (!displayScores[name]) {
-                        displayScores[name] = 0;
-                    }
-                });
-            }
+            // Always include all participants in displayScores, even if they have 0 points
+            // This ensures participants with 0 points are displayed at the bottom
+            participants.forEach(name => {
+                if (!displayScores.hasOwnProperty(name)) {
+                    displayScores[name] = 0;
+                }
+            });
             
             if (Object.keys(displayScores).length === 0) {
                 container.innerHTML = '<div class="empty-scoreboard">No scores yet. Complete a competition to add scores!</div>';
                 return;
             }
             
-            // Sort participants by actual score (highest first), not including pending changes
-            // Check if we've initialized participants with 0 points (they exist in displayScores but not in scores)
-            const hasInitializedParticipants = participants.some(name => 
-                displayScores.hasOwnProperty(name) && !scores.hasOwnProperty(name)
-            );
-            // If we've initialized participants, use displayScores for sorting to include all participants
-            const scoresForSorting = hasInitializedParticipants ? displayScores : scores;
-            const sortedParticipants = Object.entries(scoresForSorting)
+            // Sort participants by score (highest first)
+            const sortedParticipants = Object.entries(displayScores)
                 .sort(([, a], [, b]) => b - a);
             
             // Find max score for bar scaling (use display scores for proper bar sizing)
