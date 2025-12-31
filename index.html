@@ -2667,6 +2667,12 @@
             if (confirm('Are you sure you want to reset all scores? This cannot be undone.')) {
                 scoreboard = {};
                 pendingPointsChanges = {};
+                
+                // Reinitialize scoreboard with current participants at 0 points
+                participants.forEach(name => {
+                    scoreboard[name] = 0;
+                });
+                
                 saveScoreboard();
                 renderScoreboard(false);
                 updateScoreboardButtons();
