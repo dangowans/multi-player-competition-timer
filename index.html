@@ -2519,10 +2519,12 @@
             let sortedParticipants;
             if (hasPendingChanges && !isPreview) {
                 // Sort by actual scores (without pending changes)
+                // This maintains the current order while showing pending changes
                 sortedParticipants = Object.entries(displayScores)
                     .sort(([nameA], [nameB]) => {
-                        const scoreA = scores[nameA] || 0;
-                        const scoreB = scores[nameB] || 0;
+                        // Use actual scores from scoreboard, default to 0 if not present
+                        const scoreA = scores[nameA] !== undefined ? scores[nameA] : 0;
+                        const scoreB = scores[nameB] !== undefined ? scores[nameB] : 0;
                         return scoreB - scoreA;
                     });
             } else {
