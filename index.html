@@ -2520,6 +2520,8 @@
             if (hasPendingChanges && !isPreview) {
                 // Sort by actual scores (without pending changes)
                 // This maintains the current order while showing pending changes
+                // Note: We iterate over displayScores (which includes all participants)
+                // but sort by scores (which only includes participants with actual scores)
                 sortedParticipants = Object.entries(displayScores)
                     .sort(([nameA], [nameB]) => {
                         // Use actual scores from scoreboard, default to 0 if not present
