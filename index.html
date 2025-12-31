@@ -2468,7 +2468,8 @@
             }
             
             // Sort participants by actual score (highest first), not including pending changes
-            // Use displayScores if we've added participants with 0 points
+            // When the scoreboard is empty but participants exist, we've added them to displayScores with 0 points
+            // In this case, use displayScores for sorting (displayScores will have more entries than scores)
             const scoresForSorting = Object.keys(displayScores).length > Object.keys(scores).length ? displayScores : scores;
             const sortedParticipants = Object.entries(scoresForSorting)
                 .sort(([, a], [, b]) => b - a);
