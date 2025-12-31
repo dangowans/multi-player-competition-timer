@@ -1541,8 +1541,8 @@
             updateStopTimesList();
             updateStartButtonState();
             
-            // Show toast notification if there are saved scores
-            if (Object.keys(scoreboard).length > 0) {
+            // Show toast notification if there are saved scores with actual points (not just 0s)
+            if (Object.keys(scoreboard).length > 0 && Object.values(scoreboard).some(score => score > 0)) {
                 showStatus('Scoreboard has saved scores from previous sessions', 'success', 5000);
             }
         }
@@ -2477,10 +2477,12 @@
             }
             
             // Sort participants by actual score (highest first), not including pending changes
-            // When the scoreboard is empty but participants exist, we've added them to displayScores with 0 points.
-            // In this case, displayScores will have more entries than the original scores object,
-            // so we use displayScores for sorting to include all participants.
-            const scoresForSorting = Object.keys(displayScores).length > Object.keys(scores).length ? displayScores : scores;
+            // Check if we've initialized participants with 0 points (they exist in displayScores but not in scores)
+            const hasInitializedParticipants = participants.some(name => 
+                displayScores.hasOwnProperty(name) && !scores.hasOwnProperty(name)
+            );
+            // If we've initialized participants, use displayScores for sorting to include all participants
+            const scoresForSorting = hasInitializedParticipants ? displayScores : scores;
             const sortedParticipants = Object.entries(scoresForSorting)
                 .sort(([, a], [, b]) => b - a);
             
