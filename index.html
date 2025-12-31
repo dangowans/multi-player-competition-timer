@@ -1244,38 +1244,25 @@
         <div class="timer-and-times-wrapper">
             <!-- Timer Section -->
             <div class="section timer-section">
-                <!-- Participants and Reset Button Wrapper -->
-                <div class="participants-and-reset-wrapper">
-                    <!-- Participants Column -->
-                    <div class="participants-column">
-                        <!-- Participant Management Section -->
-                        <div class="participants-section-inline">
-                            <div class="collapsible-header" onclick="toggleParticipantsSection()">
-                                <h2>
-                                    Competition Participants
-                                    <span class="participant-count-badge" id="participantCountBadge">0</span>
-                                </h2>
-                                <i class="fas fa-chevron-down toggle-icon" id="participantsToggle"></i>
-                            </div>
-                            <div class="collapsible-content" id="participantsContent">
-                                <div class="participant-input">
-                                    <input type="text" id="participantName" placeholder="Enter participant name" />
-                                    <button onclick="addParticipant()">Add Participant</button>
-                                </div>
-                                <div id="participantsList" class="participants-list">
-                                    <div class="empty-state">No participants added yet</div>
-                                </div>
-                            </div>
+                <!-- Participants Section -->
+                <div class="participants-column">
+                    <!-- Participant Management Section -->
+                    <div class="participants-section-inline">
+                        <div class="collapsible-header" onclick="toggleParticipantsSection()">
+                            <h2>
+                                Competition Participants
+                                <span class="participant-count-badge" id="participantCountBadge">0</span>
+                            </h2>
+                            <i class="fas fa-chevron-down toggle-icon" id="participantsToggle"></i>
                         </div>
-                    </div>
-                    
-                    <!-- Reset Column -->
-                    <div class="reset-column">
-                        <div class="reset-button-container">
-                            <button class="reset-btn" onclick="resetTimer();">
-                                <i class="fas fa-redo"></i>
-                                <span>Reset</span>
-                            </button>
+                        <div class="collapsible-content" id="participantsContent">
+                            <div class="participant-input">
+                                <input type="text" id="participantName" placeholder="Enter participant name" />
+                                <button onclick="addParticipant()">Add Participant</button>
+                            </div>
+                            <div id="participantsList" class="participants-list">
+                                <div class="empty-state">No participants added yet</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1338,6 +1325,14 @@
 
             <!-- Stop Times Section -->
             <div class="section times-section">
+                <!-- Reset Competition Button -->
+                <div class="reset-competition-container" style="margin-bottom: 20px;">
+                    <button class="reset-btn" onclick="resetTimer();" style="width: 100%;">
+                        <i class="fas fa-redo"></i>
+                        <span>Reset Competition</span>
+                    </button>
+                </div>
+                
                 <div id="stopTimesList" class="stop-times-list">
                     <div class="empty-state">No times recorded yet</div>
                 </div>
