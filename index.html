@@ -2538,8 +2538,8 @@
                         }
                         
                         // If scores are equal, maintain original participant order
-                        const indexA = participantIndices[nameA] !== undefined ? participantIndices[nameA] : Infinity;
-                        const indexB = participantIndices[nameB] !== undefined ? participantIndices[nameB] : Infinity;
+                        const indexA = participantIndices[nameA] !== undefined ? participantIndices[nameA] : participants.length;
+                        const indexB = participantIndices[nameB] !== undefined ? participantIndices[nameB] : participants.length;
                         return indexA - indexB;
                     });
             } else {
