@@ -2020,6 +2020,7 @@
             }
 
             const stopTime = {
+                id: Date.now() + Math.random(), // Unique ID for this time entry
                 time: recordedTime,
                 formattedTime: formatTime(recordedTime),
                 assignedTo: timerMode === 'single' ? selectedParticipant : null,
@@ -2102,6 +2103,7 @@
                 
                 untimedParticipants.forEach(participantName => {
                     const stopTime = {
+                        id: Date.now() + Math.random(), // Unique ID for this time entry
                         time: countdownDuration,
                         formattedTime: formatTime(countdownDuration),
                         assignedTo: null, // Not auto-assigned, user must assign
@@ -2121,6 +2123,7 @@
                 // In single mode, only assign to the currently selected participant
                 if (selectedParticipant) {
                     const stopTime = {
+                        id: Date.now() + Math.random(), // Unique ID for this time entry
                         time: countdownDuration,
                         formattedTime: formatTime(countdownDuration),
                         assignedTo: selectedParticipant,
@@ -2317,11 +2320,8 @@
             // Clear container and use DOM methods to prevent XSS
             container.innerHTML = '';
             
-            // Create array of times with their original indices for efficient lookup
-            const timesWithIndices = stopTimes.map((st, idx) => ({ ...st, originalIndex: idx }));
-            
             // Sort times: unassigned first (by order), then assigned by lowest time
-            const sortedTimes = timesWithIndices.sort((a, b) => {
+            const sortedTimes = stopTimes.slice().sort((a, b) => {
                 // Unassigned times come first
                 const aAssigned = a.assignedTo !== null;
                 const bAssigned = b.assignedTo !== null;
@@ -2342,6 +2342,7 @@
             // Iterate through sorted times
             sortedTimes.forEach((st, displayIndex) => {
                 const isAssigned = st.assignedTo !== null;
+                const timeId = st.id; // Use ID instead of index
                 
                 const item = document.createElement('div');
                 item.className = `stop-time-item ${isAssigned ? 'assigned' : ''}`;
@@ -2377,8 +2378,8 @@
                 } else {
                     const select = document.createElement('select');
                     select.className = 'assign-select';
-                    // Use the stored original index
-                    select.onchange = (e) => assignParticipant(st.originalIndex, e.target.value);
+                    // Use the ID to find the time when assigning
+                    select.onchange = (e) => assignParticipantById(timeId, e.target.value);
                     
                     const defaultOption = document.createElement('option');
                     defaultOption.value = '';
@@ -2405,7 +2406,7 @@
                     if (isAssigned && timerMode === 'together') {
                         const unassignBtn = document.createElement('button');
                         unassignBtn.className = 'time-action-btn unassign-btn';
-                        unassignBtn.onclick = () => unassignParticipant(st.originalIndex);
+                        unassignBtn.onclick = () => unassignParticipantById(timeId);
                         
                         const unassignIcon = document.createElement('i');
                         unassignIcon.className = 'fas fa-user-minus';
@@ -2420,7 +2421,7 @@
                     // Add remove button for all times
                     const removeBtn = document.createElement('button');
                     removeBtn.className = 'time-action-btn remove-time-btn';
-                    removeBtn.onclick = () => removeStopTime(st.originalIndex);
+                    removeBtn.onclick = () => removeStopTimeById(timeId);
                     
                     const removeIcon = document.createElement('i');
                     removeIcon.className = 'fas fa-times';
@@ -2481,10 +2482,40 @@
             }
         }
         
+        // Assign participant using time ID (safer for dynamic lists)
+        function assignParticipantById(timeId, participantName) {
+            if (!participantName) return;
+            
+            const index = stopTimes.findIndex(st => st.id === timeId);
+            if (index === -1) {
+                showStatus('Time not found', 'error');
+                return;
+            }
+            
+            assignParticipant(index, participantName);
+        }
+        
+        // Remove a recorded time by ID (safer for dynamic lists)
+        function removeStopTimeById(timeId) {
+            const index = stopTimes.findIndex(st => st.id === timeId);
+            if (index === -1) {
+                showStatus('Time not found', 'error');
+                return;
+            }
+            
+            removeStopTime(index);
+        }
+        
         // Remove a recorded time
         function removeStopTime(index) {
             if (isRunning) {
                 showStatus('Cannot remove time while timer is running', 'error');
+                return;
+            }
+            
+            // Validate index
+            if (index < 0 || index >= stopTimes.length) {
+                showStatus('Invalid time index', 'error');
                 return;
             }
             
@@ -2494,9 +2525,9 @@
             stopTimes.splice(index, 1);
             
             // Update the order values for remaining times
-            stopTimes.forEach((st, idx) => {
+            stopTimes.forEach(st => {
                 if (st.order > removedTime.order) {
-                    st.order = st.order - 1;
+                    st.order--;
                 }
             });
             
@@ -2514,6 +2545,17 @@
             showStatus('Time removed successfully', 'success');
         }
         
+        // Unassign participant using time ID (safer for dynamic lists)
+        function unassignParticipantById(timeId) {
+            const index = stopTimes.findIndex(st => st.id === timeId);
+            if (index === -1) {
+                showStatus('Time not found', 'error');
+                return;
+            }
+            
+            unassignParticipant(index);
+        }
+        
         // Unassign a participant from a time (together mode only)
         function unassignParticipant(index) {
             if (isRunning) {
@@ -2523,6 +2565,18 @@
             
             if (timerMode !== 'together') {
                 showStatus('Unassign is only available in Together mode', 'error');
+                return;
+            }
+            
+            // Validate index
+            if (index < 0 || index >= stopTimes.length) {
+                showStatus('Invalid time index', 'error');
+                return;
+            }
+            
+            // Check if the time is actually assigned
+            if (!stopTimes[index].assignedTo) {
+                showStatus('Time is not assigned to any participant', 'error');
                 return;
             }
             
