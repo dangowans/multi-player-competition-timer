@@ -2397,43 +2397,40 @@
                 }
                 
                 // Add action buttons (remove and unassign)
-                // Don't show buttons while timer is running
-                if (!isRunning) {
-                    const actionsDiv = document.createElement('div');
-                    actionsDiv.className = 'time-actions';
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'time-actions';
+                
+                // Add unassign button for assigned times in together mode (only when timer is not running)
+                if (!isRunning && isAssigned && timerMode === 'together') {
+                    const unassignBtn = document.createElement('button');
+                    unassignBtn.className = 'time-action-btn unassign-btn';
+                    unassignBtn.onclick = () => unassignParticipantById(timeId);
                     
-                    // Add unassign button for assigned times in together mode
-                    if (isAssigned && timerMode === 'together') {
-                        const unassignBtn = document.createElement('button');
-                        unassignBtn.className = 'time-action-btn unassign-btn';
-                        unassignBtn.onclick = () => unassignParticipantById(timeId);
-                        
-                        const unassignIcon = document.createElement('i');
-                        unassignIcon.className = 'fas fa-user-minus';
-                        unassignBtn.appendChild(unassignIcon);
-                        
-                        const unassignText = document.createTextNode(' Unassign');
-                        unassignBtn.appendChild(unassignText);
-                        
-                        actionsDiv.appendChild(unassignBtn);
-                    }
+                    const unassignIcon = document.createElement('i');
+                    unassignIcon.className = 'fas fa-user-minus';
+                    unassignBtn.appendChild(unassignIcon);
                     
-                    // Add remove button for all times
-                    const removeBtn = document.createElement('button');
-                    removeBtn.className = 'time-action-btn remove-time-btn';
-                    removeBtn.onclick = () => removeStopTimeById(timeId);
+                    const unassignText = document.createTextNode(' Unassign');
+                    unassignBtn.appendChild(unassignText);
                     
-                    const removeIcon = document.createElement('i');
-                    removeIcon.className = 'fas fa-times';
-                    removeBtn.appendChild(removeIcon);
-                    
-                    const removeText = document.createTextNode(' Remove Time');
-                    removeBtn.appendChild(removeText);
-                    
-                    actionsDiv.appendChild(removeBtn);
-                    
-                    item.appendChild(actionsDiv);
+                    actionsDiv.appendChild(unassignBtn);
                 }
+                
+                // Add remove button for all times (shown whenever times are recorded)
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'time-action-btn remove-time-btn';
+                removeBtn.onclick = () => removeStopTimeById(timeId);
+                
+                const removeIcon = document.createElement('i');
+                removeIcon.className = 'fas fa-times';
+                removeBtn.appendChild(removeIcon);
+                
+                const removeText = document.createTextNode(' Remove Time');
+                removeBtn.appendChild(removeText);
+                
+                actionsDiv.appendChild(removeBtn);
+                
+                item.appendChild(actionsDiv);
                 
                 container.appendChild(item);
             });
