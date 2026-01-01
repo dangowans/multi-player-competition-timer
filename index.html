@@ -465,6 +465,54 @@
             text-align: center;
             word-break: break-word;
         }
+        
+        /* Action buttons for times */
+        .time-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        
+        .time-action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .time-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .time-action-btn:active {
+            transform: translateY(0);
+        }
+        
+        .time-action-btn.remove-time-btn {
+            background: #e74c3c;
+            color: #ffffff;
+        }
+        
+        .time-action-btn.remove-time-btn:hover {
+            background: #c0392b;
+        }
+        
+        .time-action-btn.unassign-btn {
+            background: #f39c12;
+            color: #ffffff;
+        }
+        
+        .time-action-btn.unassign-btn:hover {
+            background: #e67e22;
+        }
 
         .empty-state {
             text-align: center;
@@ -2347,6 +2395,45 @@
                     item.appendChild(select);
                 }
                 
+                // Add action buttons (remove and unassign)
+                // Don't show buttons while timer is running
+                if (!isRunning) {
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'time-actions';
+                    
+                    // Add unassign button for assigned times in together mode
+                    if (isAssigned && timerMode === 'together') {
+                        const unassignBtn = document.createElement('button');
+                        unassignBtn.className = 'time-action-btn unassign-btn';
+                        unassignBtn.onclick = () => unassignParticipant(st.originalIndex);
+                        
+                        const unassignIcon = document.createElement('i');
+                        unassignIcon.className = 'fas fa-user-minus';
+                        unassignBtn.appendChild(unassignIcon);
+                        
+                        const unassignText = document.createTextNode(' Unassign');
+                        unassignBtn.appendChild(unassignText);
+                        
+                        actionsDiv.appendChild(unassignBtn);
+                    }
+                    
+                    // Add remove button for all times
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'time-action-btn remove-time-btn';
+                    removeBtn.onclick = () => removeStopTime(st.originalIndex);
+                    
+                    const removeIcon = document.createElement('i');
+                    removeIcon.className = 'fas fa-times';
+                    removeBtn.appendChild(removeIcon);
+                    
+                    const removeText = document.createTextNode(' Remove Time');
+                    removeBtn.appendChild(removeText);
+                    
+                    actionsDiv.appendChild(removeBtn);
+                    
+                    item.appendChild(actionsDiv);
+                }
+                
                 container.appendChild(item);
             });
         }
@@ -2392,6 +2479,60 @@
                 showStatus('All participants have been assigned times!', 'success');
                 updateAddScoresSection();
             }
+        }
+        
+        // Remove a recorded time
+        function removeStopTime(index) {
+            if (isRunning) {
+                showStatus('Cannot remove time while timer is running', 'error');
+                return;
+            }
+            
+            const removedTime = stopTimes[index];
+            
+            // Remove the time from the array
+            stopTimes.splice(index, 1);
+            
+            // Update the order values for remaining times
+            stopTimes.forEach((st, idx) => {
+                if (st.order > removedTime.order) {
+                    st.order = st.order - 1;
+                }
+            });
+            
+            // Update UI
+            updateStopTimesList();
+            updateAddScoresSection();
+            
+            // In single mode, update the participant selector to include the removed participant again
+            if (timerMode === 'single' && removedTime.assignedTo) {
+                updateSingleModeParticipantSelector();
+            }
+            
+            updateStartButtonState();
+            
+            showStatus('Time removed successfully', 'success');
+        }
+        
+        // Unassign a participant from a time (together mode only)
+        function unassignParticipant(index) {
+            if (isRunning) {
+                showStatus('Cannot unassign while timer is running', 'error');
+                return;
+            }
+            
+            if (timerMode !== 'together') {
+                showStatus('Unassign is only available in Together mode', 'error');
+                return;
+            }
+            
+            const previouslyAssigned = stopTimes[index].assignedTo;
+            stopTimes[index].assignedTo = null;
+            
+            updateStopTimesList();
+            updateAddScoresSection();
+            
+            showStatus(`${previouslyAssigned} unassigned from time`, 'success');
         }
         
         // Update Add Scores Section visibility
