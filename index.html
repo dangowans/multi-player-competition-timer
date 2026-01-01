@@ -2020,7 +2020,7 @@
             }
 
             const stopTime = {
-                id: Date.now() + Math.random(), // Unique ID for this time entry
+                id: crypto.randomUUID(), // Unique ID for this time entry
                 time: recordedTime,
                 formattedTime: formatTime(recordedTime),
                 assignedTo: timerMode === 'single' ? selectedParticipant : null,
@@ -2103,7 +2103,7 @@
                 
                 untimedParticipants.forEach(participantName => {
                     const stopTime = {
-                        id: Date.now() + Math.random(), // Unique ID for this time entry
+                        id: crypto.randomUUID(), // Unique ID for this time entry
                         time: countdownDuration,
                         formattedTime: formatTime(countdownDuration),
                         assignedTo: null, // Not auto-assigned, user must assign
@@ -2123,7 +2123,7 @@
                 // In single mode, only assign to the currently selected participant
                 if (selectedParticipant) {
                     const stopTime = {
-                        id: Date.now() + Math.random(), // Unique ID for this time entry
+                        id: crypto.randomUUID(), // Unique ID for this time entry
                         time: countdownDuration,
                         formattedTime: formatTime(countdownDuration),
                         assignedTo: selectedParticipant,
@@ -2524,12 +2524,14 @@
             // Remove the time from the array
             stopTimes.splice(index, 1);
             
-            // Update the order values for remaining times
-            stopTimes.forEach(st => {
-                if (st.order > removedTime.order) {
-                    st.order--;
-                }
-            });
+            // Update the order values for remaining times (only if removedTime had a valid order)
+            if (removedTime.order && removedTime.order > 0) {
+                stopTimes.forEach(st => {
+                    if (st.order && st.order > removedTime.order) {
+                        st.order--;
+                    }
+                });
+            }
             
             // Update UI
             updateStopTimesList();
